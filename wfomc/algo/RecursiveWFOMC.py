@@ -447,6 +447,8 @@ def recursive_wfomc(formula: QFFormula,
                   real_version: bool = True) -> RingElement: # real_version: 是否使用真实版本的递归。
     domain_size = len(domain)
     res = Rational(0, 1)
+    # 这行代码使用 for 循环迭代 build_cell_graphs 函数的返回值。每次迭代时，从返回的元组中解包出 cell_graph 和 weight。
+    # build_cell_graphs 函数接收三个参数：formula、get_weight 和 leq_pred，并返回一系列的单元图及其对应的权重。
     for cell_graph, weight in build_cell_graphs(
         formula, get_weight, leq_pred=leq_pred
     ):
@@ -457,6 +459,7 @@ def recursive_wfomc(formula: QFFormula,
         
         IG_CACHE.init(domain_size) # 然后初始化同构图缓存IG_CACHE。
         global ORI_WEIGHT_ADJ_MAT, CELLS_NUM
+
         # not change in the same problem
         CELLS_NUM = len(cell_weights)  # 细胞数量
         ORI_WEIGHT_ADJ_MAT = edge_weights # 原始权重邻接矩阵，用于存储图的边的权重信息。

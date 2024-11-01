@@ -1,43 +1,44 @@
 from __future__ import annotations
-
+# 导入 reduce 函数，它用于对序列中的所有元素进行累计操作，可以将函数连续应用于序列的项，得到单一结果。
 from functools import reduce
 from logzero import logger
+# 解释: 从 typing 模块中导入 Callable 和 Union 类型，用于类型提示。Callable 表示可调用对象（如函数），Union 表示可以是多种类型之一。
 from typing import Callable, Union
-
+# 解释: 从 sampling_fo2.fol.utils 模块中导入 new_scott_predicate 函数，可能是用于创建 Scott 范畴谓词的工具函数。
 from wfomc.fol.utils import new_predicate, new_scott_predicate
-from .syntax import *
-from .syntax import FOLSyntaxError
+from .syntax import * #  从当前模块的 syntax 文件中导入所有内容，包含了用于公式操作的类和函数。
+from .syntax import FOLSyntaxError # 仅从 syntax 文件中导入 FOLSyntaxError，这是一个表示一阶逻辑语法错误的自定义异常类。
 
 
-class SC2(Formula):
-    def __init__(self, uni_formula: QuantifiedFormula = None,
+class SC2(Formula):# 定义一个名为 SC2 的类，继承自 Formula 类，表示一种特定类型的公式结构。
+    def __init__(self, uni_formula: QuantifiedFormula = None,# 定义类的构造函数，初始化 SC2 对象，接收三个参数：uni_formula (全称量化公式)、ext_formulas (存在量化公式的列表) 和 cnt_formulas (计数量化公式的列表)，都可以为空。
                        ext_formulas: list[QuantifiedFormula] = None,
                        cnt_formulas: list[QuantifiedFormula] = None):
-        self.uni_formula: QuantifiedFormula = uni_formula
-        self.ext_formulas: list[QuantifiedFormula] = ext_formulas or []
-        self.cnt_formulas: list[QuantifiedFormula] = cnt_formulas or []
-        self.index = 0
+        self.uni_formula: QuantifiedFormula = uni_formula # 将 uni_formula 参数赋值给类的实例变量 self.uni_formula，用于存储全称量化公式。
+        self.ext_formulas: list[QuantifiedFormula] = ext_formulas or [] # 如果传入的 ext_formulas 为空，则将 ext_formulas 设置为一个空列表，否则使用传入的值。
+        self.cnt_formulas: list[QuantifiedFormula] = cnt_formulas or [] # 同样的逻辑应用于 cnt_formulas，如果为空，则初始化为空列表。
+        self.index = 0 # 初始化 index 变量为 0，用于在遍历公式或操作时记录索引。
 
-    def contain_existential_quantifier(self) -> bool:
-        return len(self.ext_formulas) > 0
+    def contain_existential_quantifier(self) -> bool:# 定义一个方法 contain_existential_quantifier，返回值为布尔类型，用于检查是否包含存在量化公式。
+        return len(self.ext_formulas) > 0 # 如果 ext_formulas 列表的长度大于 0，则返回 True，表示包含存在量化公式；否则返回 False。
 
-    def contain_counting_quantifier(self) -> bool:
-        return len(self.cnt_formulas) > 0
+    def contain_counting_quantifier(self) -> bool: # 定义一个方法 contain_counting_quantifier，返回值为布尔类型，用于检查是否包含计数量化公式。
+        return len(self.cnt_formulas) > 0 # 如果 cnt_formulas 列表的长度大于 0，则返回 True，表示包含计数量化公式；否则返回 False。
 
-    def append_ext(self, formula: QuantifiedFormula):
-        self.ext_formulas.append(formula)
+    def append_ext(self, formula: QuantifiedFormula): # 定义方法 append_ext，用于向 ext_formulas 列表中添加一个存在量化公式。
+        self.ext_formulas.append(formula) # 将传入的 formula 添加到 ext_formulas 列表中。
 
-    def append_cnt(self, formula: QuantifiedFormula):
-        self.cnt_formulas.append(formula)
+    def append_cnt(self, formula: QuantifiedFormula): # 定义方法 append_cnt，用于向 cnt_formulas 列表中添加一个计数量化公式。
+        self.cnt_formulas.append(formula) # 将传入的 formula 添加到 cnt_formulas 列表中。
 
-    def preds(self):
-        p = self.uni_formula.preds() if self.uni_formula is not None else set()
-        return reduce(lambda x, y: x.union(y), map(lambda f: f.preds(), self.ext_formulas), p)
+    def preds(self): # 定义方法 preds，用于返回公式中包含的所有谓词。
+        p = self.uni_formula.preds() if self.uni_formula is not None else set() # 如果 uni_formula 不为空，则调用其 preds 方法获取所有谓词，否则返回一个空集合 set()。
+        return reduce(lambda x, y: x.union(y), map(lambda f: f.preds(), self.ext_formulas), p) # 使用 reduce 函数合并 ext_formulas 中所有公式的谓词集合，最终返回包含所有谓词的集合。
 
-    def pred_by_name(self, name: str) -> Union[Pred, None]:
-        for pred in self.preds():
-            if pred.name == name:
-                return pred
+    def pred_by_name(self, name: str) -> Union[Pred, None]: # 定义方法 pred_by_name，根据谓词名 name 查找并返回与该名字匹配的谓词。
+        for pred in self.preds(): # 遍历所有谓词。
+            if pred.name == name: # 如果谓词的名称与传入的 name 匹配。
+                return pred # 返回匹配的谓词对象。
         return None
 
     def __str__(self) -> str:
