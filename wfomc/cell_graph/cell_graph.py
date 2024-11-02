@@ -7,6 +7,7 @@ from itertools import product
 
 from typing import Callable, Dict, FrozenSet, Generator, List, Tuple
 from logzero import logger
+from symengine import symbols
 from sympy import Poly
 from copy import deepcopy
 from wfomc.cell_graph.utils import conditional_on
@@ -14,14 +15,12 @@ from wfomc.cell_graph.utils import conditional_on
 from wfomc.fol.syntax import AtomicFormula, Const, Pred, QFFormula, a, b, c
 from wfomc.utils import Rational, RingElement
 from wfomc.utils.multinomial import MultinomialCoefficients
-
 from .components import Cell, TwoTable
+from symengine import Rational, I, exp, symbols, pi # 新导入的
 
 
 class CellGraph(object):
-    """
     # 定义了一个 CellGraph 类，用于表示单元格图（CellGraph），主要用于处理单元格和它们之间的 WMC 计算。
-    """
 
     def __init__(self, formula: QFFormula, # 传入的 formula 是一个量词消去的公式（QFFormula）。
                  get_weight: Callable[[Pred], Tuple[RingElement, RingElement]], # 用于获取给定谓词（Pred）的权重，返回一个二元组 (RingElement, RingElement)。这个函数用于确定加权逻辑。
@@ -39,6 +38,11 @@ class CellGraph(object):
         self.leq_pred: Pred = leq_pred # 这个谓词 leq_pred 可能用于在逻辑推理过程中进行大小比较，若为 None，则不启用比较功能。
         self.preds: Tuple[Pred] = tuple(self.formula.preds())  # self.preds 存储了从公式 self.formula 中提取的所有谓词，格式为一个 Tuple[Pred]。
         logger.debug('prednames: %s', self.preds) # 使用 logger.debug 记录一个调试日志，显示谓词的名称。
+
+        if USE_DFT:
+            self.ki = symbols('ki')
+            self.Mi = symbols("Mi")
+
 
         # 这里调用了类的内部方法 _ground_on_tuple，该方法的功能可能是对公式进行“grounding”，即将公式中的逻辑量词替换为特定的变量或常量。
         gnd_formula_ab1: QFFormula = self._ground_on_tuple(
@@ -211,7 +215,9 @@ class CellGraph(object):
             for i, pred in zip(cell.code, cell.preds): # 遍历单元的 code 和 preds（谓词），zip 将单元的布尔值与相应的谓词配对。
                 assert pred.arity > 0, "Nullary predicates should have been removed" # 如果谓词的元数（arity）大于 0，即谓词涉及至少一个参数：
                 if i: # 如果 i（单元的代码中的某个值）为真，
-                    weight = weight * self.get_weight(pred)[0] # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
+                    if USE_DFT:
+                        weight = weight * self.get_weight(pred)[0] * exp(-i * 2 * pi * (self.ki / self.Mi)) # TODO
+                    weight = weight * self.get_weight(pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
                 else: # 如果 i 为假，
                     weight = weight * self.get_weight(pred)[1] # 使用 self.get_weight(pred)[1]，即获取第二个权重并相乘。
             weights[cell] = weight # 将计算出的权重存储到 weights 字典中，键是单元，值是其对应的权重。
@@ -495,18 +501,23 @@ def build_cell_graphs(formula: QFFormula, # formula: 量化自由公式 (QFFormu
                       get_weight: Callable[[Pred],
                                            Tuple[RingElement, RingElement]], # get_weight: 一个函数，接受一个谓词并返回其权重。
                       leq_pred: Pred = None,
+                      use_dft = False,
                       optimized: bool = False, # 当 optimized 为 True 时，构建优化的 cell graph；否则构建标准的 cell graph。
                       domain_size: int = 0, # domain_size: 整数，表示领域大小。
                       # 定义一个布尔参数 modified_cell_symmetry，默认为 False。用于控制优化模式下的 cell symmetry（单元对称性）修改行为。
                       modified_cell_symmetry: bool = False) \
         -> Generator[tuple[CellGraph, RingElement]]:  # 方法的返回类型是一个生成器，生成 CellGraph 和 RingElement 类型的元组。
+
+    global USE_DFT
+    USE_DFT = use_dft
+
     nullary_atoms = [atom for atom in formula.atoms() if atom.pred.arity == 0] # 从 formula 中获取所有空元谓词（arity 为 0 的谓词），并将它们存储在 nullary_atoms 列表中。
     if len(nullary_atoms) == 0: # 判断是否存在空元谓词。如果没有空元谓词，则进入该条件分支。
         logger.info('No nullary atoms found, building a single cell graph') # 记录日志信息，说明没有找到空元谓词，将构建一个单一的 cell graph。
         if not optimized: # 检查 optimized 参数。如果 optimized 为 False，则按照标准模式构建 cell graph。
             yield CellGraph(formula, get_weight, leq_pred), Rational(1, 1) # 生成一个 CellGraph 实例及其对应的权重 Rational(1, 1)（表示权重为 1）。
         else: # 如果 optimized 为 True，进入此分支，构建一个优化后的 cell graph。
-            yield OptimizedCellGraph(
+            yield OptimizedCellGraph( #
                 formula, get_weight, domain_size, modified_cell_symmetry
             ), Rational(1, 1) # 生成一个 OptimizedCellGraph 实例及其对应的权重 Rational(1, 1)。
     else: # 如果存在空元谓词，则进入此分支。

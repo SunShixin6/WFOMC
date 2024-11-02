@@ -8,6 +8,7 @@ import logzero
 from logzero import logger
 from contexttimer import Timer
 
+from wfomc.algo.DFT import dft
 from wfomc.problems import WFOMCProblem
 from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc
 
@@ -18,7 +19,7 @@ from wfomc.fol.syntax import Pred
 
 # 这段代码实现了加权一阶模型计数（Weighted First-Order Model Counting, WFOMC）的算法，使用不同的计数方法处理给定的输入
 # 定义一个名为 wfomc 的函数，它接收两个参数：problem：一个 WFOMCSProblem 实例，表示需要解决的具体问题。algo：算法选择，默认为 STANDARD。返回值类型为 Rational，即有理数结果。
-def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:
+def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational: # 这里不仅仅是有理数，还可能是多项式
     # both standard and fast WFOMCs need precomputation
     if algo == Algo.STANDARD or algo == Algo.FAST or \
             algo == algo.FASTv2:
@@ -57,7 +58,12 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:
         elif algo == Algo.RECURSIVE:
             res = recursive_wfomc(
                 context.formula, context.domain,
-                context.get_weight, leq_pred
+                context.get_weight, leq_pred,
+            )
+        elif algo == Algo.DFT: # TODO 表示使用dft
+            res = dft(
+                context.formula, context.domain,
+                context.get_weight, leq_pred,
             )
     res = context.decode_result(res) # 将结果通过上下文解码。
     logger.info('WFOMC time: %s', t.elapsed) # 记录计算所花费的时间，并返回结果。
@@ -72,7 +78,7 @@ def parse_args():# 使用 argparse 模块定义了命令行参数：
     parser.add_argument('--input', '-i', type=str, required=True,
                         help='mln file') # --inputfile：MLN 输入文件，必需参数。
     parser.add_argument('--output_dir', '-o', type=str,
-                        default='./check-points') # --output_dir：输出目录，默认是 ./check-points。
+                        default='./check-points') # --output_dir：输出目录，默认是 ./check-points。可能会输出一些日志之类的
     parser.add_argument('--algo', '-a', type=Algo,
                         choices=list(Algo), default=Algo.FASTv2) # --algo：选择使用的算法，默认是 FASTv2。
     parser.add_argument('--debug', action='store_true', default=False)
@@ -93,7 +99,7 @@ if __name__ == '__main__':
     logzero.logfile('{}/log.txt'.format(args.output_dir), mode='w') # 设置日志文件路径，并将日志信息写入到指定目录中的 log.txt 文件。
 
     with Timer() as t: # 使用 parse_input 函数解析输入文件（MLN 文件），并记录解析所需的时间。
-        problem = parse_input(args.input)
+        problem = parse_input(args.input) # 把文件转成一个类
     logger.info('Parse input: %ss', t)
 
     res = wfomc( # 调用 wfomc 函数执行计算，记录结果（有理数精度）。

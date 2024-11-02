@@ -6,7 +6,7 @@ from .wfomcs_parser import parse as wfomcs_parse
 from .mln_parser import parse as mln_parse
 
 # # 定义了一个名为 parse_input 的函数，接受一个 input_file 字符串参数，并返回一个 WFOMCSProblem 对象。该函数用于根据文件类型解析输入文件。
-def parse_input(input_file: str) -> WFOMCProblem:
+def  parse_input(input_file: str) -> WFOMCProblem:
     if input_file.endswith('.mln'):# 判断输入文件的文件名是否以 .mln 结尾，即是否为 MLN 文件格式。
         with open(input_file, 'r') as f:
             input_content = f.read()

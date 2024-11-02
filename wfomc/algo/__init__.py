@@ -7,8 +7,8 @@ from .RecursiveWFOMC import recursive_wfomc
 
 __all__ = [
     "standard_wfomc",
-    "fast_wfomc",
-    "incremental_wfomc",
+    "fast_wfomc",  # 不用了解
+    "incremental_wfomc",  # 不用了解
     "recursive_wfomc"
 ]
 
@@ -19,6 +19,7 @@ class Algo(Enum):
     FASTv2 = 'fastv2'
     INCREMENTAL = 'incremental'
     RECURSIVE = 'recursive'
+    DFT = "dft" #这里表示使用dft
 
     def __str__(self):
         return self.value

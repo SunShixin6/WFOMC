@@ -20,7 +20,7 @@ class WFOMCProblem(object): # 该类定义了加权一阶模型计数/采样问�
                  weights: dict[Pred, tuple[Rational, Rational]],
                  cardinality_constraint: CardinalityConstraint = None):
         self.domain: set[Const] = domain
-        self.sentence: SC2 = sentence # sentence：SC2 公式，代表问题的逻辑句子。
+        self.sentence: SC2 = sentence # sentence：SC2 公式，代表问题的逻辑句子。这个就是代表FOL某种类型问题，不需要理解了解。详情见论On exact sa...的论文
         self.weights: dict[Pred, tuple[Rational, Rational]] = weights # weights：字典，键为谓词，值为两个有理数的元组，表示加权。
         self.cardinality_constraint: CardinalityConstraint = cardinality_constraint # cardinality_constraint：可选的基数约束对象。
 

@@ -377,7 +377,7 @@ def dfs_wfomc_real(cell_weights, domain_size, node: TreeNode = None):
             node.cell_to_children[l] = TreeNode(new_cell_weights, node.depth+1)
         if domain_size - 1 == 1:
             value = sum(new_cell_weights)   
-        else: # 调用 cellWeight_To_vertexColor 函数将 new_cell_weights 转换为图结构中的顶点颜色。cellWeight_To_vertexColor 返回的值包含原始顶点颜色、颜色种类和颜色计数。
+        else: # 也就是构建nauty的graph # 调用 cellWeight_To_vertexColor 函数将 new_cell_weights 转换为图结构中的顶点颜色。cellWeight_To_vertexColor 返回的值包含原始顶点颜色、颜色种类和颜色计数。
             original_vertex_colors, vertex_color_kind, vertex_color_count = cellWeight_To_vertexColor(new_cell_weights) # convert cell weights to vertex colors
             if ENABLE_ISOMORPHISM: # 如果启用了 ENABLE_ISOMORPHISM（同构处理），代码会调整顶点颜色，使颜色编号从 0 开始并连续。
                 adjust_vertex_colors, no_color = adjust_vertex_coloring(original_vertex_colors) #adjust_vertex_coloring() 函数用于执行颜色调整。返回颜色列表和新的颜色数量
@@ -440,22 +440,23 @@ def clean_global_variables():
 
 
 # recursive_wfomc 是这个算法的核心函数，用于根据给定的公式、领域、权重和谓词计算加权模型计数（WFOMC）。
-def recursive_wfomc(formula: QFFormula,
+def recursive_wfomc(formula: QFFormula, # # 要求解的逻辑公式。skolem之后的
                   domain: set[Const],
-                  get_weight: Callable[[Pred], tuple[RingElement, RingElement]],
-                  leq_pred: Pred, # leq_pred: 谓词，用于指定“≤”关系。
-                  real_version: bool = True) -> RingElement: # real_version: 是否使用真实版本的递归。
+                  get_weight: Callable[[Pred], tuple[RingElement, RingElement]], #一个正 一个负
+                  leq_pred: Pred, # leq_pred: 谓词，用于指定“≤”关系。线性阶，这个本质上是一个binary predicate
+                  ues_dft: bool = False, # TODO 用一个参数接收
+                  real_version: bool = True) -> RingElement: # real_version: 是否使用真实版本的递归。权重为整数的时候，可以做优化，把它因式分解。为True，表示不做因式分解，只有特殊情况为False，才因式分解。因式分解没有写在文章里面
     domain_size = len(domain)
     res = Rational(0, 1)
     # 这行代码使用 for 循环迭代 build_cell_graphs 函数的返回值。每次迭代时，从返回的元组中解包出 cell_graph 和 weight。
     # build_cell_graphs 函数接收三个参数：formula、get_weight 和 leq_pred，并返回一系列的单元图及其对应的权重。
-    for cell_graph, weight in build_cell_graphs(
-        formula, get_weight, leq_pred=leq_pred
-    ):
+    for cell_graph, weight in build_cell_graphs( # 这里假设就build出一个cell，因为有的句子里面零元谓词，要先处理零元谓词 ，比如\forall: X:(P(X)|Q()), if Q() = T, T else \forall X:P(X)
+        formula, get_weight, leq_pred=leq_pred, use_dft = ues_dft # 所以在这个函数里面分情况讨论，遍历所有的为T还是F，得到化简后的句子，然后再cell_graph
+    ): # 从这个下面就是文章里面的主要构成 # TODO
         cell_weights = cell_graph.get_all_weights()[0] # 获取顶点权重a
         edge_weights = cell_graph.get_all_weights()[1] # 获取边权重b
         
-        clean_global_variables()
+        clean_global_variables() # 文章算法里面有很多全局变量，比如cache等等，
         
         IG_CACHE.init(domain_size) # 然后初始化同构图缓存IG_CACHE。
         global ORI_WEIGHT_ADJ_MAT, CELLS_NUM
@@ -463,7 +464,7 @@ def recursive_wfomc(formula: QFFormula,
         # not change in the same problem
         CELLS_NUM = len(cell_weights)  # 细胞数量
         ORI_WEIGHT_ADJ_MAT = edge_weights # 原始权重邻接矩阵，用于存储图的边的权重信息。
-        edgeWeight_To_edgeColor() # 用于处理边权重到颜色的映射
+        edgeWeight_To_edgeColor() # 用于处理边权重到颜色的映射 # 需要了解一下nauty大概的思路，第四个有一个演示
         calculate_adjacency_dict() # 构建多层图的邻接字典 ADJACENCY_DICT，该字典存储了扩展图中每个顶点的邻接关系。
         create_graph() # 创建一个无向图对象
         
@@ -475,10 +476,10 @@ def recursive_wfomc(formula: QFFormula,
             prime_init_factors(cell_weights, edge_weights) # prime_init_factors：初始化因式分解。
             cell_factor_tuple_list = get_init_factor_set(cell_weights, edge_weights) # get_init_factor_set：获取因式分解后的初始因子集，并将其传递给 dfs_wfomc 进行递归计算。
             res_ = dfs_wfomc(cell_weights, domain_size, cell_factor_tuple_list)
-        else: # 如果 real_version 是 True，则调用真实版本的递归 dfs_wfomc_real，并将结果返回。
+        else: # 看这里，上面的不要看 # 如果 real_version 是 True，则调用真实版本的递归 dfs_wfomc_real，并将结果返回。
             global ROOT
             ROOT.cell_weights = cell_weights
-            res_ = dfs_wfomc_real(cell_weights, domain_size, ROOT)
+            res_ = dfs_wfomc_real(cell_weights, domain_size, ROOT) # 这里就是算法的第五行 类似于一个树的深度优先搜索，其实就是递归，
             if PRINT_TREE:
                 print_tree(ROOT) 
         res = res + weight * res_ # TODO 这里有bug
