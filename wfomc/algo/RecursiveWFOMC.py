@@ -445,14 +445,15 @@ def recursive_wfomc(formula: QFFormula, # # 要求解的逻辑公式。skolem之
                   get_weight: Callable[[Pred], tuple[RingElement, RingElement]], #一个正 一个负
                   leq_pred: Pred, # leq_pred: 谓词，用于指定“≤”关系。线性阶，这个本质上是一个binary predicate
                   ues_dft: bool = False, # TODO 用一个参数接收
-                  real_version: bool = True) -> RingElement: # real_version: 是否使用真实版本的递归。权重为整数的时候，可以做优化，把它因式分解。为True，表示不做因式分解，只有特殊情况为False，才因式分解。因式分解没有写在文章里面
+                  real_version: bool = True, k_div_M = None) -> RingElement: # real_version: 是否使用真实版本的递归。权重为整数的时候，可以做优化，把它因式分解。为True，表示不做因式分解，只有特殊情况为False，才因式分解。因式分解没有写在文章里面
     domain_size = len(domain)
     res = Rational(0, 1)
     # 这行代码使用 for 循环迭代 build_cell_graphs 函数的返回值。每次迭代时，从返回的元组中解包出 cell_graph 和 weight。
     # build_cell_graphs 函数接收三个参数：formula、get_weight 和 leq_pred，并返回一系列的单元图及其对应的权重。
     for cell_graph, weight in build_cell_graphs( # 这里假设就build出一个cell，因为有的句子里面零元谓词，要先处理零元谓词 ，比如\forall: X:(P(X)|Q()), if Q() = T, T else \forall X:P(X)
-        formula, get_weight, leq_pred=leq_pred, use_dft = ues_dft # 所以在这个函数里面分情况讨论，遍历所有的为T还是F，得到化简后的句子，然后再cell_graph
-    ): # 从这个下面就是文章里面的主要构成 # TODO
+        formula, get_weight, leq_pred, ues_dft , k_div_M # 所以在这个函数里面分情况讨论，遍历所有的为T还是F，得到化简后的句子，然后再cell_graph
+    ):
+        # 从这个下面就是文章里面的主要构成 # TODO
         cell_weights = cell_graph.get_all_weights()[0] # 获取顶点权重a
         edge_weights = cell_graph.get_all_weights()[1] # 获取边权重b
         

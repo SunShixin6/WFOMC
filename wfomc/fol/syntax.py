@@ -221,7 +221,7 @@ class QFFormula(Formula):
     def models(self) -> Iterable[frozenset[AtomicFormula]]: # 定义了 models 方法，用于生成当前公式的所有模型，返回类型是可迭代对象 Iterable，其中包含不可变集合 frozenset，每个集合中包含若干 AtomicFormula。
         """
         Yield all models of the formula
-# 该方法会生成公式的所有模型，并且返回类型是一个可迭代对象 Iterable，其中每个元素是一个包含 Lit 对象（即文字）的不可变集合 frozenset。
+        # 该方法会生成公式的所有模型，并且返回类型是一个可迭代对象 Iterable，其中每个元素是一个包含 Lit 对象（即文字）的不可变集合 frozenset。
         :rtype Iterable[frozenset[Lit]]: models
         """
         if not self.satisfiable():

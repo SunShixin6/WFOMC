@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 import functools
 import networkx as nx
@@ -21,13 +22,11 @@ from symengine import Rational, I, exp, symbols, pi # 新导入的
 
 class CellGraph(object):
     # 定义了一个 CellGraph 类，用于表示单元格图（CellGraph），主要用于处理单元格和它们之间的 WMC 计算。
-
     def __init__(self, formula: QFFormula, # 传入的 formula 是一个量词消去的公式（QFFormula）。
                  get_weight: Callable[[Pred], Tuple[RingElement, RingElement]], # 用于获取给定谓词（Pred）的权重，返回一个二元组 (RingElement, RingElement)。这个函数用于确定加权逻辑。
                  leq_pred: Pred = None): # 可选的谓词，用于比较两个值的大小
         """
         Cell graph that handles cells (1-types) and the WMC between them
-
         :param sentence QFFormula: the sentence in the form of quantifier-free formula
         :param get_weight Callable[[Pred], Tuple[RingElement, RingElement]]: the weighting function
         :param conditional_formulas List[CNF]: the optional conditional formula appended in WMC computing
@@ -38,11 +37,6 @@ class CellGraph(object):
         self.leq_pred: Pred = leq_pred # 这个谓词 leq_pred 可能用于在逻辑推理过程中进行大小比较，若为 None，则不启用比较功能。
         self.preds: Tuple[Pred] = tuple(self.formula.preds())  # self.preds 存储了从公式 self.formula 中提取的所有谓词，格式为一个 Tuple[Pred]。
         logger.debug('prednames: %s', self.preds) # 使用 logger.debug 记录一个调试日志，显示谓词的名称。
-
-        if USE_DFT:
-            self.ki = symbols('ki')
-            self.Mi = symbols("Mi")
-
 
         # 这里调用了类的内部方法 _ground_on_tuple，该方法的功能可能是对公式进行“grounding”，即将公式中的逻辑量词替换为特定的变量或常量。
         gnd_formula_ab1: QFFormula = self._ground_on_tuple(
@@ -152,13 +146,13 @@ class CellGraph(object):
         return list(filter(cell_filter, self.cells))
 
     @functools.lru_cache(maxsize=None, typed=True)
-    def get_cell_weight(self, cell: Cell) -> Poly:
-        if cell not in self.cell_weights:
-            logger.warning(
+    def get_cell_weight(self, cell: Cell) -> Poly:# 定义一个名为 get_cell_weight 的方法，接受一个参数 cell，类型为 Cell。该方法返回一个多项式 Poly，表示指定细胞的权重。
+        if cell not in self.cell_weights: # 检查 cell 是否存在于 self.cell_weights 字典中，以确定该细胞是否已经计算过权重。
+            logger.warning( # 如果细胞不存在，使用 logger 记录一个警告信息，指出该细胞未找到。
                 "Cell %s not found", cell
             )
-            return 0
-        return self.cell_weights.get(cell)
+            return 0 # 返回 0，表示该细胞的权重不可用。
+        return self.cell_weights.get(cell) # 返回 self.cell_weights 字典中与 cell 相关联的权重值。如果细胞存在，则返回对应的权重。
 
     def _check_existence(self, cells: Tuple[Cell, Cell]):
         if cells not in self.two_tables:
@@ -169,21 +163,23 @@ class CellGraph(object):
     @functools.lru_cache(maxsize=None, typed=True)
     def get_two_table_weight(self, cells: Tuple[Cell, Cell],
                              evidences: FrozenSet[AtomicFormula] = None) -> RingElement:
-        self._check_existence(cells)
-        return self.two_tables.get(cells).get_weight(evidences)
+        # 定义一个名为 get_two_table_weight 的方法，接受两个参数：cells 是一个元组，包含两个 Cell 对象；
+        # evidences 是一个可选的 FrozenSet，包含原子公式。该方法返回一个 RingElement，表示这两个细胞之间的权重。
+        self._check_existence(cells) # 调用私有方法 _check_existence 来检查提供的 cells 是否在 two_tables 字典中存在。如果不存在，会抛出异常。
+        return self.two_tables.get(cells).get_weight(evidences) # 从 self.two_tables 字典中获取与 cells 相关联的 TwoTable 对象，然后调用该对象的 get_weight 方法，传入 evidences 参数，返回这两个细胞之间的权重。
 
-    def get_all_weights(self) -> Tuple[List[RingElement], List[RingElement]]:
-        cell_weights = []
-        twotable_weights = []
-        for cell_i in self.cells:
-            cell_weights.append(self.get_cell_weight(cell_i))
-            twotable_weight = []
-            for cell_j in self.cells:
-                twotable_weight.append(self.get_two_table_weight(
+    def get_all_weights(self) -> Tuple[List[RingElement], List[RingElement]]: # 定义一个名为 get_all_weights 的方法，该方法没有参数，返回一个包含两个列表的元组。每个列表的元素类型为 RingElement，表示细胞图中所有细胞的权重。
+        cell_weights = [] # 初始化一个空列表 cell_weights，用于存储每个细胞的权重。
+        twotable_weights = [] # 初始化另一个空列表 twotable_weights，用于存储细胞对之间的权重。
+        for cell_i in self.cells: # 遍历 self.cells 列表中的每个细胞 cell_i。
+            cell_weights.append(self.get_cell_weight(cell_i)) # 对于当前细胞 cell_i，调用 get_cell_weight 方法获取其权重，并将其添加到 cell_weights 列表中。
+            twotable_weight = [] # 初始化一个空列表 twotable_weight，用于存储当前细胞 cell_i 与其他细胞之间的权重。
+            for cell_j in self.cells: # 再次遍历 self.cells 列表中的每个细胞 cell_j，以便计算 cell_i 与 cell_j 之间的权重。
+                twotable_weight.append(self.get_two_table_weight( # 调用 get_two_table_weight 方法，获取当前细胞 cell_i 和 cell_j 之间的权重，并将其添加到 twotable_weight 列表中。
                     (cell_i, cell_j)
                 ))
-            twotable_weights.append(twotable_weight)
-        return cell_weights, twotable_weights
+            twotable_weights.append(twotable_weight) # 将 twotable_weight 列表添加到 twotable_weights 列表中，记录当前细胞 cell_i 的所有细胞对权重。
+        return cell_weights, twotable_weights # 返回一个元组，包含 cell_weights 和 twotable_weights 列表，表示所有细胞的权重和细胞对之间的权重。
 
     @functools.lru_cache(maxsize=None, typed=True)
     def satisfiable(self, cells: Tuple[Cell, Cell],
@@ -216,8 +212,9 @@ class CellGraph(object):
                 assert pred.arity > 0, "Nullary predicates should have been removed" # 如果谓词的元数（arity）大于 0，即谓词涉及至少一个参数：
                 if i: # 如果 i（单元的代码中的某个值）为真，
                     if USE_DFT:
-                        weight = weight * self.get_weight(pred)[0] * exp(-i * 2 * pi * (self.ki / self.Mi)) # TODO
-                    weight = weight * self.get_weight(pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
+                        weight = weight * self.get_weight(pred)[0] * exp( - I * 2 * pi * coef) # TODO coef是一个列表，那么也会生成一个列表
+                    else:
+                        weight = weight * self.get_weight(pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
                 else: # 如果 i 为假，
                     weight = weight * self.get_weight(pred)[1] # 使用 self.get_weight(pred)[1]，即获取第二个权重并相乘。
             weights[cell] = weight # 将计算出的权重存储到 weights 字典中，键是单元，值是其对应的权重。
@@ -241,14 +238,19 @@ class CellGraph(object):
         gnd_lits = gnd_lits.union(
             frozenset(map(lambda x: ~x, gnd_lits))
         ) # 通过使用 map 函数和取反运算符 ~，将每个原子命题的正负版本都加入到 gnd_lits 中，确保包括每个原子命题的正负两种形式。
-        for model in self.gnd_formula_ab.models(): # 遍历公式 self.gnd_formula_ab 的所有模型（解释）。
+        for model in self.gnd_formula_ab.models(): # 遍历公式 self.gnd_formula_ab 的所有模型（解释）。 # models 该方法会生成公式的所有模型
             weight = Rational(1, 1)
             for lit in model: # 对每个模型中的每个文字（谓词及其真假性）：
                 # ignore the weight appearing in cell weight # 忽略那些在单元权重中已经考虑的权重（通过检查谓词的参数）。
-                if (not (len(lit.args) == 1 or all(arg == lit.args[0]
-                                                   for arg in lit.args))):
-                    weight *= (self.get_weight(lit.pred)[0] if lit.positive else
-                               self.get_weight(lit.pred)[1]) # 根据文字的正负性，选择对应的权重进行相乘：如果谓词为正，使用第一个权重；如果谓词为负，使用第二个权重。
+                if (not (len(lit.args) == 1 or all(arg == lit.args[0] for arg in lit.args))):
+                     # 根据文字的正负性，选择对应的权重进行相乘
+                    if lit.positive: # 如果谓词为正
+                        if USE_DFT:
+                            weight *= self.get_weight(lit.pred)[0] * exp( - I * 2 * pi * coef) # 使用第一个权重
+                        else:
+                            weight *= self.get_weight(lit.pred)[0]  # 使用第一个权重
+                    else: # ；如果谓词为负
+                        weight *= self.get_weight(lit.pred)[1] # 使用第二个权重
             models[frozenset(model)] = weight # 将模型及其计算的权重添加到 models 字典中，键为模型的 frozenset（使模型顺序无关），值为对应的权重。
 
         # build twotable tables
@@ -261,9 +263,7 @@ class CellGraph(object):
                     tables[(cell, other_cell)] = tables[(other_cell, cell)]
                 models_2 = conditional_on(models_1, gnd_lits, # 否则，调用 conditional_on 函数，进一步基于 other_cell 的证据计算新的条件模型 models_2。
                                           other_cell.get_evidences(b))
-                tables[(cell, other_cell)] = TwoTable(
-                    models_2, gnd_lits
-                ) # 对于每对单元 (cell, other_cell)，创建一个 TwoTable 对象，并将其存储到 tables 字典中，键为单元对，值为计算出的 TwoTable 对象
+                tables[(cell, other_cell)] = TwoTable(models_2, gnd_lits) # 对于每对单元 (cell, other_cell)，创建一个 TwoTable 对象，并将其存储到 tables 字典中，键为单元对，值为计算出的 TwoTable 对象
         return tables # 返回构建好的 "two_tables" 字典。
 
 
@@ -501,15 +501,19 @@ def build_cell_graphs(formula: QFFormula, # formula: 量化自由公式 (QFFormu
                       get_weight: Callable[[Pred],
                                            Tuple[RingElement, RingElement]], # get_weight: 一个函数，接受一个谓词并返回其权重。
                       leq_pred: Pred = None,
-                      use_dft = False,
+                      use_dft = False, #表示是否使用dft构建
+                      k_div_M = None,
                       optimized: bool = False, # 当 optimized 为 True 时，构建优化的 cell graph；否则构建标准的 cell graph。
                       domain_size: int = 0, # domain_size: 整数，表示领域大小。
                       # 定义一个布尔参数 modified_cell_symmetry，默认为 False。用于控制优化模式下的 cell symmetry（单元对称性）修改行为。
                       modified_cell_symmetry: bool = False) \
         -> Generator[tuple[CellGraph, RingElement]]:  # 方法的返回类型是一个生成器，生成 CellGraph 和 RingElement 类型的元组。
 
-    global USE_DFT
-    USE_DFT = use_dft
+    global USE_DFT # 全局声明是否用DFT，就不用来回传参了
+    USE_DFT = use_dft # 全局声明是否用DFT，就不用来回传参了
+    if use_dft:
+        global coef
+        coef = k_div_M
 
     nullary_atoms = [atom for atom in formula.atoms() if atom.pred.arity == 0] # 从 formula 中获取所有空元谓词（arity 为 0 的谓词），并将它们存储在 nullary_atoms 列表中。
     if len(nullary_atoms) == 0: # 判断是否存在空元谓词。如果没有空元谓词，则进入该条件分支。

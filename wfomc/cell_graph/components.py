@@ -31,15 +31,31 @@ class Cell(object):
                            frozenset(zip(self.preds, self.code)))
 
     @functools.lru_cache(maxsize=None)
-    def get_evidences(self, term: Term) -> FrozenSet[AtomicFormula]:
-        evidences: set[AtomicFormula] = set()
-        for i, p in enumerate(self.preds):
-            atom = p(*([term] * p.arity))
-            if (self.code[i]):
-                evidences.add(atom)
-            else:
+    def get_evidences(self, term: Term) -> FrozenSet[AtomicFormula]: # term: 一个 Term 对象，用于生成原子公式的实例。
+        """
+        这个 get_evidences 方法的作用是基于给定的 term（术语）生成一个证据集合，
+        其中包含了模型中原子公式（AtomicFormula）的所有实例。返回值是一个不可变集合（FrozenSet[AtomicFormula]），代表该 term 下所有生成的证据公式。
+
+        示例
+        假设：
+
+        self.preds 包含两个谓词：p1 和 p2。
+        self.code 为 [True, False]，表示第一个谓词生成的原子公式为正，第二个为负。
+        term 是某个具体术语。
+        假设 p1 的 arity 为 1，p2 的 arity 为 2，那么生成的 evidences 集合将包含：
+
+        p1(term)，因为 self.code[0] 为 True。
+        ~p2(term, term)，因为 self.code[1] 为 False。
+        最终返回包含这些原子公式的 frozenset 集合。
+        """
+        evidences: set[AtomicFormula] = set() # 定义一个可变集合 evidences，用于收集生成的原子公式。
+        for i, p in enumerate(self.preds): # 遍历 self.preds 中的谓词（p），每个谓词可能会生成不同的原子公式。
+            atom = p(*([term] * p.arity)) # 对于每个谓词 p，根据其 arity（参数个数），用 [term] * p.arity 生成一个参数列表，并将其传入谓词 p，生成一个原子公式 atom。
+            if (self.code[i]): # 使用 self.code[i] 判断该原子公式是否为正或否：
+                evidences.add(atom) # 如果 self.code[i] 为 True，则将 atom 添加到 evidences。
+            else: # 如果 self.code[i] 为 False，则将 ~atom（atom 的否定）添加到 evidences。
                 evidences.add(~atom)
-        return frozenset(evidences)
+        return frozenset(evidences) # 将可变集合 evidences 转换为不可变集合 frozenset，并返回该集合。
 
     @functools.lru_cache(maxsize=None)
     def is_positive(self, pred: Pred) -> bool:
