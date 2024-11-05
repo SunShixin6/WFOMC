@@ -17,8 +17,8 @@ from wfomc.fol.syntax import AtomicFormula, Const, Pred, QFFormula, a, b, c
 from wfomc.utils import Rational, RingElement
 from wfomc.utils.multinomial import MultinomialCoefficients
 from .components import Cell, TwoTable
-from symengine import Rational, I, exp, symbols, pi # 新导入的
-
+from sympy import Rational, I, exp, symbols, pi # 新导入的
+from wfomc.utils.simplify import my_simplify
 
 class CellGraph(object):
     # 定义了一个 CellGraph 类，用于表示单元格图（CellGraph），主要用于处理单元格和它们之间的 WMC 计算。

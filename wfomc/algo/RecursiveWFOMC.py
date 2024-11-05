@@ -8,6 +8,7 @@ from wfomc.cell_graph import CellGraph, build_cell_graphs
 from wfomc.utils import RingElement, Rational
 from wfomc.utils.polynomial import expand # expand: 用于将多项式展开为更加易于计算的形式。
 from wfomc.fol.syntax import Const, Pred, QFFormula # Const、Pred 和 QFFormula: 这些是用于逻辑运算的一阶逻辑对象：Const: 表示逻辑中的常量。Pred: 表示谓词，它定义了一些逻辑关系。QFFormula: 表示量化逻辑公式，可能包含存在量化符号或者通用量化符号（比如 ∃、∀）。
+from wfomc.utils.simplify import my_simplify
 
 # TreeNode类表示树中的一个节点，用于递归结构中的表示。它有三个主要属性：
 class TreeNode(object):
@@ -372,7 +373,7 @@ def dfs_wfomc_real(cell_weights, domain_size, node: TreeNode = None):
         w_l = cell_weights[l] # 获取当前细胞的权重。
         # 计算新的细胞权重 new_cell_weights。具体方法是遍历 CELLS_NUM 内的每个 i，将 cell_weights[i] 与 ORI_WEIGHT_ADJ_MAT[l][i] 相乘后
         # 调用 expand 函数来调整和扩展权重。这生成了一个新的细胞权重列表。
-        new_cell_weights = [expand(cell_weights[i] * ORI_WEIGHT_ADJ_MAT[l][i]) for i in range(CELLS_NUM)]
+        new_cell_weights = my_simplify([expand(cell_weights[i] * ORI_WEIGHT_ADJ_MAT[l][i]) for i in range(CELLS_NUM)])
         if PRINT_TREE: # 检查是否启用了 PRINT_TREE 标志。如果启用，程序将创建一个新的 TreeNode 对象，传递 new_cell_weights 和 node.depth+1 作为参数。这表示树的深度递增一层，并将其添加到 node.cell_to_children[l] 中。
             node.cell_to_children[l] = TreeNode(new_cell_weights, node.depth+1)
         if domain_size - 1 == 1:
@@ -441,23 +442,27 @@ def clean_global_variables():
 
 # recursive_wfomc 是这个算法的核心函数，用于根据给定的公式、领域、权重和谓词计算加权模型计数（WFOMC）。
 def recursive_wfomc(formula: QFFormula, # # 要求解的逻辑公式。skolem之后的
-                  domain: set[Const],
-                  get_weight: Callable[[Pred], tuple[RingElement, RingElement]], #一个正 一个负
-                  leq_pred: Pred, # leq_pred: 谓词，用于指定“≤”关系。线性阶，这个本质上是一个binary predicate
-                  ues_dft: bool = False, # TODO 用一个参数接收
-                  real_version: bool = True, k_div_M = None) -> RingElement: # real_version: 是否使用真实版本的递归。权重为整数的时候，可以做优化，把它因式分解。为True，表示不做因式分解，只有特殊情况为False，才因式分解。因式分解没有写在文章里面
+                    domain: set[Const],
+                    get_weight: Callable[[Pred], tuple[RingElement, RingElement]], #一个正 一个负
+                    leq_pred: Pred, # leq_pred: 谓词，用于指定“≤”关系。线性阶，这个本质上是一个binary predicate
+                    real_version: bool = True,
+                    k_div_M = None,
+                    ues_dft: bool = False
+                    ) -> RingElement: # real_version: 是否使用真实版本的递归。权重为整数的时候，可以做优化，把它因式分解。为True，表示不做因式分解，只有特殊情况为False，才因式分解。因式分解没有写在文章里面
     domain_size = len(domain)
     res = Rational(0, 1)
     # 这行代码使用 for 循环迭代 build_cell_graphs 函数的返回值。每次迭代时，从返回的元组中解包出 cell_graph 和 weight。
     # build_cell_graphs 函数接收三个参数：formula、get_weight 和 leq_pred，并返回一系列的单元图及其对应的权重。
+    if k_div_M == 0.0: # 如果系数为0，相当于没有起作用
+        ues_dft = False
     for cell_graph, weight in build_cell_graphs( # 这里假设就build出一个cell，因为有的句子里面零元谓词，要先处理零元谓词 ，比如\forall: X:(P(X)|Q()), if Q() = T, T else \forall X:P(X)
         formula, get_weight, leq_pred, ues_dft , k_div_M # 所以在这个函数里面分情况讨论，遍历所有的为T还是F，得到化简后的句子，然后再cell_graph
     ):
         # 从这个下面就是文章里面的主要构成 # TODO
-        cell_weights = cell_graph.get_all_weights()[0] # 获取顶点权重a
-        edge_weights = cell_graph.get_all_weights()[1] # 获取边权重b
+        cell_weights = my_simplify(cell_graph.get_all_weights()[0]) # 获取顶点权重a
+        edge_weights = [my_simplify(i) for i in cell_graph.get_all_weights()[1]] # 获取边权重b
         
-        clean_global_variables() # 文章算法里面有很多全局变量，比如cache等等，
+        # clean_global_variables() # 文章算法里面有很多全局变量，比如cache等等， # TODO 放到代码前面进行清理
         
         IG_CACHE.init(domain_size) # 然后初始化同构图缓存IG_CACHE。
         global ORI_WEIGHT_ADJ_MAT, CELLS_NUM
@@ -483,6 +488,7 @@ def recursive_wfomc(formula: QFFormula, # # 要求解的逻辑公式。skolem之
             res_ = dfs_wfomc_real(cell_weights, domain_size, ROOT) # 这里就是算法的第五行 类似于一个树的深度优先搜索，其实就是递归，
             if PRINT_TREE:
                 print_tree(ROOT) 
-        res = res + weight * res_ # TODO 这里有bug
+        res = res + weight * res_
         print(weight * res_)
+        break
     return res

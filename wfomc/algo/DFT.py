@@ -5,7 +5,7 @@ from typing import Callable
 from wfomc.utils import RingElement, Rational, k
 from itertools import product
 import numpy as np
-from symengine import Rational, I, exp, symbols, pi # 新导入的
+from sympy import Rational, I, exp, symbols, pi # 新导入的
 # # DFT:求g（k），对于任意k属于D
 # def get_dft(
 #         formula: QFFormula,  # # 要求解的逻辑公式。skolem之后的
@@ -38,30 +38,31 @@ from symengine import Rational, I, exp, symbols, pi # 新导入的
 #     pass
 
 # DFT:求g（k），对于任意k属于D
-def get_dft(
+def q(
         formula: QFFormula,  # # 要求解的逻辑公式。skolem之后的
         domain: set[Const],
         get_weight: Callable[[Pred], tuple[RingElement, RingElement]],  # 一个正 一个负
         leq_pred: Pred,  # leq_pred: 谓词，用于指定“≤”关系。线性阶，这个本质上是一个binary predicate
-        k_div_M,
+        ki_div_Mi,
         real_version: bool = True) -> RingElement:
     # 调用WFOMC，只是让里面的权重增加一项而已。相当于在原始WFOMC外面包了一层
-    res = recursive_wfomc(formula, domain, get_weight, leq_pred, real_version, k_div_M )
+    res = recursive_wfomc(formula, domain, get_weight, leq_pred, real_version, ki_div_Mi, ues_dft = True )
     return res
     pass
 
 
 # 傅里叶反变换
-def get_reverse_DFT(formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple[RingElement, RingElement]],leq_pred: Pred,real_version: bool = True):
-    tmp_res = Rational(0,1)
-    for k in D:
-        k = np.array(k)
-        k_div_M = k / M
-        dot_res = np.dot(n, k / M )
-        # 先调用上面的变换，然后在这个函数里面完成反变换
-        tmp_res += get_dft(formula, domain, get_weight, leq_pred, k_div_M, real_version)  * np.exp(1j * 2 * np.pi * dot_res) # fixme  这里好像可以直接传入coef 应该传入什么呢，向量还是元素
-    return tmp_res
-    pass
+def g(formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple[RingElement, RingElement]],leq_pred: Pred,real_version: bool = True):
+    tmp_list = [Rational(0, 1) for _ in range(length)]
+    D1 = D[1000000:] # 从100000开始
+
+    for k in D1: # k:(2, 4, 23, 7, 14)
+        dot_res = np.dot(n, np.array(k) / np.array(M))
+        for index in range(length):
+            ki_div_Mi = k[index] / M[index]
+            tmp_list[index] += q(formula, domain, get_weight, leq_pred, ki_div_Mi, real_version)  * exp(I * 2 * pi * dot_res)# 先调用上面的变换，然后在这个函数里面完成反变换 # fixme  这里好像可以直接传入coef 应该传入什么呢，向量还是元素
+    return tmp_list
+
 
 def generate_D(domain_size, var_counts): # var_counts 是一个列表，其中包含每个公式的变量数量
     """
@@ -97,6 +98,8 @@ def dft(formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple
     # 这里n是基数约束 # TODO 看看代码中哪里处理基数约束？ 某个谓词没有基数约束，代码如何表示？ 去看看decode部分 ,感觉好像要在decode部分处理
     global n
     n = np.array([1,1,1,1,1])
+    global length
+    length = len(n)
 
     var_counts = count_variables_in_formulas(formula) #  从formula里面找每个公式的变量数量
     # 确定D
@@ -104,8 +107,8 @@ def dft(formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple
     D = generate_D(len(domain), var_counts) # 获取D = {0, 1, . . . , |∆||vars(α1)|} × · · · × {0, 1, . . . , |∆||vars(αm)|}.
     # 确定M
     global M
-    M = np.array(generate_M(len(domain), var_counts)) # M = [|∆||vars(α1)| + 1, . . . , |∆||vars(αm)| + 1, 1],
-    tmp = get_reverse_DFT(formula, domain, get_weight, leq_pred)
+    M = generate_M(len(domain), var_counts) # M = [|∆||vars(α1)| + 1, . . . , |∆||vars(αm)| + 1, 1],
+    tmp = g(formula, domain, get_weight, leq_pred)
     return  tmp / sum(M)
 
 
