@@ -458,11 +458,11 @@ def recursive_wfomc(formula: QFFormula, # # 要求解的逻辑公式。skolem之
     for cell_graph, weight in build_cell_graphs( # 这里假设就build出一个cell，因为有的句子里面零元谓词，要先处理零元谓词 ，比如\forall: X:(P(X)|Q()), if Q() = T, T else \forall X:P(X)
         formula, get_weight, leq_pred, ues_dft , k_div_M # 所以在这个函数里面分情况讨论，遍历所有的为T还是F，得到化简后的句子，然后再cell_graph
     ):
-        # 从这个下面就是文章里面的主要构成 # TODO
+            # 从这个下面就是文章里面的主要构成
         cell_weights = my_simplify(cell_graph.get_all_weights()[0]) # 获取顶点权重a
         edge_weights = [my_simplify(i) for i in cell_graph.get_all_weights()[1]] # 获取边权重b
         
-        # clean_global_variables() # 文章算法里面有很多全局变量，比如cache等等， # TODO 放到代码前面进行清理
+        clean_global_variables() # 文章算法里面有很多全局变量，比如cache等等， # TODO 放到代码前面进行清理
         
         IG_CACHE.init(domain_size) # 然后初始化同构图缓存IG_CACHE。
         global ORI_WEIGHT_ADJ_MAT, CELLS_NUM

@@ -71,8 +71,25 @@ class CardinalityConstraint(Constraint):
         return res # 返回累积后的结果 res，即有效的多项式系数的总和。
 
     def valid(self, degrees: list[int]) -> bool: # 定义一个名为 valid 的方法，接受一个参数 degrees，类型为整数列表。该方法返回一个布尔值，表示给定的 degrees 是否有效。
-        kwargs = zip((self.var2pred[sym].name for sym in self.gen_vars), degrees) # 使用 zip 函数将生成的变量名与其对应的幂次 degrees 配对。这里通过生成器表达式 self.var2pred[sym].name for sym in self.gen_vars 获取每个变量对应的预测名称，将它们与 degrees 中的值组合成元组。
-        return eval(self.validator.format(**dict(kwargs))) # 使用 eval 函数动态执行构建的验证器表达式。首先用 kwargs 字典替换 self.validator 中的占位符，生成完整的表达式，然后评估该表达式的真假并返回结果。这一步会根据之前 build 方法构建的逻辑表达式进行验证。
+        # kwargs = zip((self.var2pred[sym].name for sym in self.gen_vars), degrees) # 使用 zip 函数将生成的变量名与其对应的幂次 degrees 配对。这里通过生成器表达式 self.var2pred[sym].name for sym in self.gen_vars 获取每个变量对应的预测名称，将它们与 degrees 中的值组合成元组。
+        # return eval(self.validator.format(**dict(kwargs))) # 使用 eval 函数动态执行构建的验证器表达式。首先用 kwargs 字典替换 self.validator 中的占位符，生成完整的表达式，然后评估该表达式的真假并返回结果。这一步会根据之前 build 方法构建的逻辑表达式进行验证。
+
+        # 第一步：创建一个生成器，用于从 `self.gen_vars` 中获取每个符号变量的名称
+        # 并与对应的 `degrees` 值配对
+        predicate_names = (self.var2pred[sym].name for sym in self.gen_vars) # predicate_names 是一个生成器，它从 self.gen_vars 中获取每个符号变量，并使用 self.var2pred 将符号变量映射到相应的谓词名称。
+
+        # 第二步：将 `predicate_names` 与 `degrees` 配对生成键值对，形成一个字典 `kwargs`
+        kwargs = dict(zip(predicate_names, degrees)) # kwargs 是一个字典，用 zip 函数将 predicate_names 和 degrees 组合成键值对。每个键是谓词的名称，值是相应的指数。
+
+        # 第三步：将 `self.validator` 中的占位符替换为实际的 `kwargs` 值
+        # `self.validator` 是预定义的字符串模板，包含约束表达式
+        formatted_validator = self.validator.format(**kwargs) # formatted_validator 是格式化后的字符串。通过 self.validator.format(**kwargs) 将 self.validator 中的每个占位符替换为 kwargs 中的对应值。
+
+        # 第四步：使用 `eval` 计算替换后的表达式，返回布尔值
+        result = eval(formatted_validator) # eval(formatted_validator) 计算并返回 formatted_validator 表达式的布尔值，即是否满足约束条件。
+
+        # 返回最终的验证结果
+        return result
 
     def extend_simple_constraints(self, ccs: list[tuple[Pred, str, int]]):
         for pred, comp, card in ccs:

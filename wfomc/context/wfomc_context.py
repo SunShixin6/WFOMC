@@ -58,6 +58,8 @@ class WFOMCContext(object):
         res = self.cardinality_constraint.decode_poly(res)
         return res / self.repeat_factor
 
+
+
     def _skolemize_one_formula(self, formula: QuantifiedFormula) -> QFFormula:
         """
         Only need to deal with \forall X \exists Y: f(X,Y) or \exists X: f(X,Y)

@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Remote Python 3.9.20 (sftp://root@192.168.88.161:22/root/anaconda3/envs/mywfomc/bin/python3.9)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.9.20 (sftp://root@192.168.88.161:22/root/anaconda3/envs/mywfomc/bin/python3.9)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="mywfomc" project-jdk-type="Python SDK" />
 </project>
