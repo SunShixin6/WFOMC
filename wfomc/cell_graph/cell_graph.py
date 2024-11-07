@@ -17,7 +17,7 @@ from wfomc.fol.syntax import AtomicFormula, Const, Pred, QFFormula, a, b, c
 from wfomc.utils import Rational, RingElement
 from wfomc.utils.multinomial import MultinomialCoefficients
 from .components import Cell, TwoTable
-from sympy import Rational, I, exp, symbols, pi # 新导入的
+from symengine import Rational, I, exp, symbols, pi # 新导入的
 from wfomc.utils.simplify import my_simplify
 
 class CellGraph(object):
@@ -212,7 +212,7 @@ class CellGraph(object):
                 assert pred.arity > 0, "Nullary predicates should have been removed" # 如果谓词的元数（arity）大于 0，即谓词涉及至少一个参数：
                 if i: # 如果 i（单元的代码中的某个值）为真，
                     if USE_DFT:
-                        weight = weight * self.get_weight(pred)[0] * exp( - I * 2 * pi * coef) # TODO coef是一个列表，那么也会生成一个列表
+                        weight = weight * self.get_weight(pred)[0] * exp( - I * Rational(2,1) * pi * coef) #
                     else:
                         weight = weight * self.get_weight(pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
                 else: # 如果 i 为假，
@@ -226,7 +226,10 @@ class CellGraph(object):
         for i, pred in zip(cell.code, cell.preds): # cell.code 是一个布尔值列表，cell.preds 是谓词（predicate）列表。zip 会将 cell.code 和 cell.preds 一一配对，分别赋值给 i 和 pred。
             if pred.arity == 0: # 如果当前谓词的元数（arity）为 0（即没有参数），继续进行计算
                 if i:  # 如果 i 为 True，意味着当前的谓词处于“真”的状态。
-                    weight = weight * self.get_weight(pred)[0] # 获取当前谓词的第一个权重，并将其与当前权重相乘。
+                    if USE_DFT:
+                        weight = weight * self.get_weight(pred)[0] * exp(- I * Rational(2, 1) * pi * coef)  #
+                    else:
+                        weight = weight * self.get_weight(pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
                 else: # 如果 i 为 False，意味着当前谓词处于“假”的状态。
                     weight = weight * self.get_weight(pred)[1] # 获取当前谓词的第二个权重（表示“假”状态时的权重），并将其与当前权重相乘。
         return weight
@@ -246,9 +249,9 @@ class CellGraph(object):
                      # 根据文字的正负性，选择对应的权重进行相乘
                     if lit.positive: # 如果谓词为正
                         if USE_DFT:
-                            weight *= self.get_weight(lit.pred)[0] * exp( - I * 2 * pi * coef) # 使用第一个权重
+                            weight = weight * self.get_weight(lit.pred)[0] * exp(- I * Rational(2, 1) * pi * coef)  #
                         else:
-                            weight *= self.get_weight(lit.pred)[0]  # 使用第一个权重
+                            weight = weight * self.get_weight(lit.pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
                     else: # ；如果谓词为负
                         weight *= self.get_weight(lit.pred)[1] # 使用第二个权重
             models[frozenset(model)] = weight # 将模型及其计算的权重添加到 models 字典中，键为模型的 frozenset（使模型顺序无关），值为对应的权重。
