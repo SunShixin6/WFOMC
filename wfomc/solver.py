@@ -66,9 +66,9 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational: # 这�
                 context.formula, context.domain,
                 context.get_weight, leq_pred,
             )
-    # res = context.decode_result(res) # 将结果通过上下文解码。
-    # logger.info('WFOMC time: %s', t.elapsed) # 记录计算所花费的时间，并返回结果。
-    # return res
+    res = context.decode_result(res) # 将结果通过上下文解码。
+    logger.info('WFOMC time: %s', t.elapsed) # 记录计算所花费的时间，并返回结果。
+    return res
 
 
 def parse_args():# 使用 argparse 模块定义了命令行参数：
@@ -106,6 +106,6 @@ if __name__ == '__main__':
     res = wfomc( # 调用 wfomc 函数执行计算，记录结果（有理数精度）。
         problem, algo=args.algo
     )
-    # logger.info('WFOMC (arbitrary precision): %s', res)
-    # round_val = round_rational(res) # 然后使用 round_rational 对结果进行四舍五入，并记录该四舍五入后的结果。
-    # logger.info('WFOMC (round): %s (exp(%s))', round_val, round_val.ln())
+    logger.info('WFOMC (arbitrary precision): %s', res)
+    round_val = round_rational(res) # 然后使用 round_rational 对结果进行四舍五入，并记录该四舍五入后的结果。
+    logger.info('WFOMC (round): %s (exp(%s))', round_val, round_val.ln())

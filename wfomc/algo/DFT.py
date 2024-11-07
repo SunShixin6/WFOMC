@@ -12,7 +12,7 @@ from wfomc.utils.simplify import my_simplify
 
 def g(formula: QFFormula, domain: set[Const], get_weight: Callable[[Pred], tuple[RingElement, RingElement]], leq_pred: Pred, ki_div_Mi, real_version: bool = True) -> RingElement:
     # 调用WFOMC，只是让里面的权重增加一项而已。相当于在原始WFOMC外面包了一层
-    res = recursive_wfomc(edge_count, formula, domain, get_weight, leq_pred, real_version, ki_div_Mi, ues_dft = True ) # ki_div_Mi, ues_dft = True 这两个参数是新加的
+    res = recursive_wfomc(formula, domain, get_weight, leq_pred, real_version, ki_div_Mi, ues_dft = True ) # ki_div_Mi, ues_dft = True 这两个参数是新加的
     return res
 
 
@@ -42,41 +42,18 @@ def q(formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple[R
     tmp = Rational(0,1)
     sum_q = Rational(0,1 )
     tmp_cache = dict() # 用于缓存相同的ki_div_Mi 的CCG结果
-    global edge_count
-    edge_count = dict()
-
     for k in D:
         dot_res = get_dot(n, k, M)  # n 和 k/M 做点乘 # 这里不能是numpy类型
         for index in range(length):
             ki_div_Mi = k[index] / M[index] # 获得每一个ki/Mi, 传入CCG中
-            # exp_ = my_simplify(exp(I * 2 * pi * dot_res)) # 因为e指数有周期性，可以进行化简到0到2pi之间
-            # if ki_div_Mi not in tmp_cache: # 没有计算过ki_div_Mi的CCG
-            g(formula, domain, get_weight, leq_pred, ki_div_Mi, real_version) # 先调用上面的变换，然后在这个函数里面完成反变换 #
-            #     tmp_cache[ki_div_Mi] = tmp
-            # else:
-            #     tmp = tmp_cache[ki_div_Mi] # 计算过ki_div_Mi的CCG
-            # sum_q += tmp
-    import sympy as sp
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-
-    print(edge_count)
-    print(len(edge_count))
-    # 将 sympy 多项式转换为字符串
-    polynomial_strings = [str(poly) for poly in edge_count.keys()]
-    counts = list(edge_count.values())
-
-    # 绘制分布图
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x=polynomial_strings, y=counts)
-    plt.xlabel('Polynomial (as string)')
-    plt.ylabel('Count')
-    plt.title('Distribution of Polynomial Counts')
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
-    plt.show()
-
-    # return sum_q / sum(M)
+            exp_ = my_simplify(exp(I * 2 * pi * dot_res)) # 因为e指数有周期性，可以进行化简到0到2pi之间
+            if ki_div_Mi not in tmp_cache: # 没有计算过ki_div_Mi的CCG
+                tmp = g(formula, domain, get_weight, leq_pred, ki_div_Mi, real_version)  * exp_# 先调用上面的变换，然后在这个函数里面完成反变换 #
+                tmp_cache[ki_div_Mi] = tmp
+            else:
+                tmp = tmp_cache[ki_div_Mi] # 计算过ki_div_Mi的CCG
+            sum_q += tmp
+    return sum_q / sum(M)
 
 
 def generate_D(domain_size, var_counts): # var_counts 是一个列表，其中包含每个公式的变量数量
@@ -87,6 +64,12 @@ def generate_D(domain_size, var_counts): # var_counts 是一个列表，其中�
     D = [tuple(Rational(x) for x in combo) for combo in product(*ranges)]  # 将所有可能的组合转换为包含 Rational 类型元素的元组
     return D
 
+
+def count_variables_in_formulas(formula: QFFormula): #  从formula里面找每个公式的变量数量
+    tmp = []
+    for clause in formula.expr.args:
+        tmp.append(len(clause.free_symbols))
+    return tmp
 
 def generate_M(Delta, vars_list):
     return [Rational(Delta) ** Rational(vars_count) + Rational(1, 1) for vars_count in vars_list]
@@ -112,6 +95,7 @@ def dft(cons: CardinalityConstraint, formula: QFFormula,domain: set[Const],get_w
     global M
     M = generate_M(len(domain), var_counts) # M = [|∆||vars(α1)| + 1, . . . , |∆||vars(αm)| + 1, 1],
     return q(formula, domain, get_weight, leq_pred)
+
 
 
 # get_weight 中的X0是什么
