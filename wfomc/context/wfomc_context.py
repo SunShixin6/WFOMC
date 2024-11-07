@@ -126,9 +126,9 @@ class WFOMCContext(object):
 
         # self.formula = self.formula.simplify()
 
-        if self.contain_cardinality_constraint():# 首先检查是否包含基数约束（cardinality constraint），如果包含
-            self.weights.update(# 然后将返回的结果用于更新当前对象的 self.weights 属性
-                self.cardinality_constraint.transform_weighting(
-                    self.get_weight,
-                )
-            )
+        # if self.contain_cardinality_constraint():# 首先检查是否包含基数约束（cardinality constraint），如果包含
+        #     self.weights.update(# 然后将返回的结果用于更新当前对象的 self.weights 属性
+        #         self.cardinality_constraint.transform_weighting(
+        #             self.get_weight,
+        #         )
+        #     )

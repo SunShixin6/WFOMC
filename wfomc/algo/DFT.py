@@ -91,7 +91,6 @@ def dft(cons: CardinalityConstraint, formula: QFFormula,domain: set[Const],get_w
     # 确定D
     global D #
     D = generate_D(len(domain), var_counts) # 获取D = {0, 1, . . . , |∆||vars(α1)|} × · · · × {0, 1, . . . , |∆||vars(αm)|}.
-    D = D[27:]
     # 确定M
     global M
     M = generate_M(len(domain), var_counts) # M = [|∆||vars(α1)| + 1, . . . , |∆||vars(αm)| + 1, 1],
