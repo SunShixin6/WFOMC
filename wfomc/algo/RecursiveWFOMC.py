@@ -441,7 +441,8 @@ def clean_global_variables():
 
 
 # recursive_wfomc 是这个算法的核心函数，用于根据给定的公式、领域、权重和谓词计算加权模型计数（WFOMC）。
-def recursive_wfomc(formula: QFFormula, # # 要求解的逻辑公式。skolem之后的
+def recursive_wfomc(edge_count,
+                    formula: QFFormula, # # 要求解的逻辑公式。skolem之后的
                     domain: set[Const],
                     get_weight: Callable[[Pred], tuple[RingElement, RingElement]], #一个正 一个负
                     leq_pred: Pred, # leq_pred: 谓词，用于指定“≤”关系。线性阶，这个本质上是一个binary predicate
@@ -461,34 +462,41 @@ def recursive_wfomc(formula: QFFormula, # # 要求解的逻辑公式。skolem之
             # 从这个下面就是文章里面的主要构成
         cell_weights = my_simplify(cell_graph.get_all_weights()[0]) # 获取顶点权重a
         edge_weights = [my_simplify(i) for i in cell_graph.get_all_weights()[1]] # 获取边权重b
-        
-        clean_global_variables() # 文章算法里面有很多全局变量，比如cache等等， # TODO 放到代码前面进行清理
-        
-        IG_CACHE.init(domain_size) # 然后初始化同构图缓存IG_CACHE。
-        global ORI_WEIGHT_ADJ_MAT, CELLS_NUM
 
-        # not change in the same problem
-        CELLS_NUM = len(cell_weights)  # 细胞数量
-        ORI_WEIGHT_ADJ_MAT = edge_weights # 原始权重邻接矩阵，用于存储图的边的权重信息。
-        edgeWeight_To_edgeColor() # 用于处理边权重到颜色的映射 # 需要了解一下nauty大概的思路，第四个有一个演示
-        calculate_adjacency_dict() # 构建多层图的邻接字典 ADJACENCY_DICT，该字典存储了扩展图中每个顶点的邻接关系。
-        create_graph() # 创建一个无向图对象
-        
-        # disable isomorphism
-        # global ENABLE_ISOMORPHISM
-        # ENABLE_ISOMORPHISM = False
-        
-        if not real_version: # 如果 real_version 是 False，则调用非真实版本的递归 dfs_wfomc。这通常是一个优化版本，避免一些计算。
-            prime_init_factors(cell_weights, edge_weights) # prime_init_factors：初始化因式分解。
-            cell_factor_tuple_list = get_init_factor_set(cell_weights, edge_weights) # get_init_factor_set：获取因式分解后的初始因子集，并将其传递给 dfs_wfomc 进行递归计算。
-            res_ = dfs_wfomc(cell_weights, domain_size, cell_factor_tuple_list)
-        else: # 看这里，上面的不要看 # 如果 real_version 是 True，则调用真实版本的递归 dfs_wfomc_real，并将结果返回。
-            global ROOT
-            ROOT.cell_weights = cell_weights
-            res_ = dfs_wfomc_real(cell_weights, domain_size, ROOT) # 这里就是算法的第五行 类似于一个树的深度优先搜索，其实就是递归，
-            if PRINT_TREE:
-                print_tree(ROOT) 
-        res = res + weight * res_
-        print(weight * res_)
-        break
-    return res
+        for edge_list in edge_weights:
+            for edge in edge_list:
+                if edge not in edge_count:
+                    edge_count[edge] = 1
+                else:
+                    edge_count[edge]+= 1
+
+        # clean_global_variables() # 文章算法里面有很多全局变量，比如cache等等， # TODO 放到代码前面进行清理
+    #
+    #     IG_CACHE.init(domain_size) # 然后初始化同构图缓存IG_CACHE。
+    #     global ORI_WEIGHT_ADJ_MAT, CELLS_NUM
+    #
+    #     # not change in the same problem
+    #     CELLS_NUM = len(cell_weights)  # 细胞数量
+    #     ORI_WEIGHT_ADJ_MAT = edge_weights # 原始权重邻接矩阵，用于存储图的边的权重信息。
+    #     edgeWeight_To_edgeColor() # 用于处理边权重到颜色的映射 # 需要了解一下nauty大概的思路，第四个有一个演示
+    #     calculate_adjacency_dict() # 构建多层图的邻接字典 ADJACENCY_DICT，该字典存储了扩展图中每个顶点的邻接关系。
+    #     create_graph() # 创建一个无向图对象
+    #
+    #     # disable isomorphism
+    #     # global ENABLE_ISOMORPHISM
+    #     # ENABLE_ISOMORPHISM = False
+    #
+    #     if not real_version: # 如果 real_version 是 False，则调用非真实版本的递归 dfs_wfomc。这通常是一个优化版本，避免一些计算。
+    #         prime_init_factors(cell_weights, edge_weights) # prime_init_factors：初始化因式分解。
+    #         cell_factor_tuple_list = get_init_factor_set(cell_weights, edge_weights) # get_init_factor_set：获取因式分解后的初始因子集，并将其传递给 dfs_wfomc 进行递归计算。
+    #         res_ = dfs_wfomc(cell_weights, domain_size, cell_factor_tuple_list)
+    #     else: # 看这里，上面的不要看 # 如果 real_version 是 True，则调用真实版本的递归 dfs_wfomc_real，并将结果返回。
+    #         global ROOT
+    #         ROOT.cell_weights = cell_weights
+    #         res_ = dfs_wfomc_real(cell_weights, domain_size, ROOT) # 这里就是算法的第五行 类似于一个树的深度优先搜索，其实就是递归，
+    #         if PRINT_TREE:
+    #             print_tree(ROOT)
+    #     res = res + weight * res_
+    #     print(weight * res_)
+    #     break
+    # return res
