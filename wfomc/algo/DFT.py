@@ -2,6 +2,8 @@ from wfomc.algo import recursive_wfomc
 from wfomc.context import WFOMCContext
 from wfomc.fol.syntax import Const, Pred, QFFormula
 from typing import Callable
+
+from wfomc.network import CardinalityConstraint
 from wfomc.utils import RingElement, Rational
 from itertools import product
 import numpy as np
@@ -14,44 +16,41 @@ def g(formula: QFFormula, domain: set[Const], get_weight: Callable[[Pred], tuple
     return res
 
 
-# 傅里叶反变换
+def get_dot(n: list[Rational], k: tuple[Rational, Rational], M: list[Rational]):
+    tmp = Rational(0, 1) # 确保每次计算都使用 Rational 类型
+    for i in range(len(n)):
+        tmp += n[i] * k[i] / M[i]
+    return tmp
+
+
+# 傅里叶反变换得到q
 def q(formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple[RingElement, RingElement]],leq_pred: Pred,real_version: bool = True):
-    tmp_list = [Rational(0, 1) for _ in range(length)] # 生成一个列表，长度为length，也就是k的长度，每个元素都是Rational(0, 1)
-    D1 = D[1000000:] # 从100000开始
-    tmp_cache = dict()
-    for k in D1: # k:(2, 4, 23, 7, 14)
-        dot_res = np.dot(n, np.array(k) / np.array(M))  # n 和 k/M 做点乘
+    tmp = Rational(0,1)
+    sum_q = Rational(0,1 )
+    tmp_cache = dict() # 用于缓存相同的ki_div_Mi 的CCG结果
+    for k in D:
+        dot_res = get_dot(n, k, M)  # n 和 k/M 做点乘 # 这里不能是numpy类型
+
         for index in range(length):
             ki_div_Mi = k[index] / M[index] # 获得每一个ki/Mi, 传入CCG中
-            e_coef = exp(I * 2 * pi * dot_res)
-            e_coef_simple = my_simplify(e_coef)[0]
+            exp_ = my_simplify(exp(I * 2 * pi * dot_res)) # 因为e指数有周期性，可以进行化简到0到2pi之间
             if ki_div_Mi not in tmp_cache: # 没有计算过ki_div_Mi的CCG
-                tmp_res = g(formula, domain, get_weight, leq_pred, ki_div_Mi, real_version)  * e_coef_simple# 先调用上面的变换，然后在这个函数里面完成反变换 # fixme  这里好像可以直接传入coef 应该传入什么呢，向量还是元素
-                tmp_cache[ki_div_Mi] = tmp_res
+                tmp = g(formula, domain, get_weight, leq_pred, ki_div_Mi, real_version)  * exp_# 先调用上面的变换，然后在这个函数里面完成反变换 #
+                tmp_cache[ki_div_Mi] = tmp
             else:
-                tmp_res = tmp_cache[ki_div_Mi] # 计算过ki_div_Mi的CCG
-            tmp_list[index] += tmp_res #累加
-    return tmp_list / sum(M)
+                tmp = tmp_cache[ki_div_Mi] # 计算过ki_div_Mi的CCG
+            sum_q += tmp
+    return sum_q / sum(M)
 
 
 def generate_D(domain_size, var_counts): # var_counts 是一个列表，其中包含每个公式的变量数量
     """
     生成集合 D，其中 D 是一个多维整数向量的集合。
-
-    参数:
-    - domain_size (int): 常量集合 Delta 的大小 |Delta|
-    - var_counts (list of int): 每个公式中变量的数量 |vars(α_i)|
-    # # 示例用法
-    # domain_size = 3  # 假设 |Delta| = 3
-    # var_counts = [2, 1, 2]  # 假设公式 α1 有 2 个变量, α2 有 1 个变量, α3 有 2 个变量
-    # D = generate_D(domain_size, var_counts)
-    # print(D)
-    返回:
-    - D (list of tuples): 集合 D 的所有可能组合
     """
-    ranges = [range(domain_size ** var_count + 1) for var_count in var_counts] # ranges 中的每个 range(domain_size ** var_count + 1) 表示每个公式可以生成的计数范围。
-    D = list(product(*ranges)) #  product(*ranges) 生成了所有可能的组合，即集合 𝐷
+    ranges = [range(int(Rational(domain_size) ** Rational(var_count) + 1)) for var_count in var_counts]  # ranges 中的每个 range 表示每个公式可以生成的计数范围。
+    D = [tuple(Rational(x) for x in combo) for combo in product(*ranges)]  # 将所有可能的组合转换为包含 Rational 类型元素的元组
     return D
+
 
 def count_variables_in_formulas(formula: QFFormula): #  从formula里面找每个公式的变量数量
     tmp = []
@@ -60,40 +59,29 @@ def count_variables_in_formulas(formula: QFFormula): #  从formula里面找每�
     return tmp
 
 def generate_M(Delta, vars_list):
-    return [Delta ** vars_count + 1 for vars_count in vars_list]
-
-
-
-# 获取基数约束数组
-def get_n(context):
-    # fixme 定义一个字典，里面对应的是每个谓词和约束
-    if not context.contain_cardinality_constraint(): #没有约束，返回None
-        return None
-
-    preds = context.cardinality_constraint.preds #
-    constraints = context.cardinality_constraint.constraints
-    result_dict = {list(item[0].keys())[0]: item[2] for item in constraints}
-    pass
-
+    return [Rational(Delta) ** Rational(vars_count) + Rational(1, 1) for vars_count in vars_list]
 
 
 # 主函数
-def dft(context: WFOMCContext, formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple[RingElement, RingElement]],leq_pred: Pred,real_version: bool = True):
-    # 这里n是基数约束
-    get_n(context) # fixme 看看代码中哪里处理基数约束？ 某个谓词没有基数约束，代码如何表示？ 去看看decode部分 ,感觉好像要在decode部分处理
+def dft(cons: CardinalityConstraint, formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple[RingElement, RingElement]],leq_pred: Pred):
+    pred_cons_dict = {list(item[0].keys())[0]: item[2] for item in cons.constraints} # 构建字典，键是谓词，值是基数约束
+    pred_arity_dict = {pred: pred.arity for pred in cons.preds} # 构建字典，键是变量，值是它们的 arity 属性 # 只需要关注被约束的谓词的变量的个数
     global n
-    n = np.array([1,1,1,1,1]) # fixme  没有约束的话，这里是None吗
-
-    var_counts = count_variables_in_formulas(formula) # fixme  是应该从formula里面找每个公式的变量数量吗，这里面formula有五个，但是原始文件中有4个
+    n = [] # 基数约束，每个谓词对应的约束
+    var_counts = [] # 存储 每个谓词 对应的变量数目
+    for _ , item in enumerate(pred_arity_dict):
+        n.append(Rational(pred_cons_dict[item]))
+        var_counts.append(pred_arity_dict[item])
+    # 确定 k n M 约束谓词 的维度length
     global length
     length = len(var_counts)
     # 确定D
-    global D # fixme D 和J 搞不清楚
+    global D #
     D = generate_D(len(domain), var_counts) # 获取D = {0, 1, . . . , |∆||vars(α1)|} × · · · × {0, 1, . . . , |∆||vars(αm)|}.
+    D = D[27:]
     # 确定M
     global M
     M = generate_M(len(domain), var_counts) # M = [|∆||vars(α1)| + 1, . . . , |∆||vars(αm)| + 1, 1],
-
     return q(formula, domain, get_weight, leq_pred)
 
 

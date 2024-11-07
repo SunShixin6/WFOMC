@@ -62,7 +62,7 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational: # 这�
             )
         elif algo == Algo.DFT: # TODO 表示使用dft
             res = dft(
-                context,
+                context.cardinality_constraint,
                 context.formula, context.domain,
                 context.get_weight, leq_pred,
             )

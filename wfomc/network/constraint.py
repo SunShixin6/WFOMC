@@ -27,22 +27,22 @@ class TreeConstraint(Constraint):
 
 
 class CardinalityConstraint(Constraint):
-    def __init__(self, constraints: list[tuple[dict[Pred, float], str, float]] = None):
-        self.constraints: list[tuple[dict[Pred, float], str, float]] = constraints
+    def __init__(self, constraints: list[tuple[dict[Pred, float], str, float]] = None): # 参数 constraints 是可选的，默认值为 None，其类型是一个列表，列表中包含若干个元组。
+        self.constraints: list[tuple[dict[Pred, float], str, float]] = constraints # 每个元组包含三部分：dict[Pred, float] 表示谓词 Pred 到浮点数的映射，str 是一个字符串，float 是一个浮点数。
         if self.constraints is None:
-            self.constraints = list()
+            self.constraints = list() # 如果 constraints 参数为 None，则将 self.constraints 初始化为空列表，确保不为空值。
 
-        self.preds: set[Pred] = set()
-        if self.constraints is not None:
+        self.preds: set[Pred] = set() # 初始化 self.preds 为一个空集合，用于存储谓词 Pred。
+        if self.constraints is not None: # 如果 self.constraints 不是 None，则遍历每个约束 constraint。
             for constraint in self.constraints:
-                self.preds.update(constraint[0].keys())
+                self.preds.update(constraint[0].keys()) # constraint[0] 是一个 dict[Pred, float]，获取它的所有键（这些键是谓词 Pred）。使用 self.preds.update() 将这些键加入到 self.preds 集合中，以收集所有涉及的谓词。
 
-        self.gen_vars: list[Symbol]
-        self.var2pred: dict[Symbol, Pred] = dict()
-        self.validator: str = ""
+        self.gen_vars: list[Symbol] # 声明 self.gen_vars，类型是 list[Symbol]，但未初始化。这意味着稍后应该赋值一个包含 Symbol 类型元素的列表给 self.gen_vars。
+        self.var2pred: dict[Symbol, Pred] = dict() # 初始化 self.var2pred 为一个空字典，用于将 Symbol 映射到 Pred。self.var2pred 的类型是 dict[Symbol, Pred]。
+        self.validator: str = "" # 初始化 self.validator 为一个空字符串，用于存储验证信息。类型为 str。
 
-    def empty(self) -> bool:
-        return len(self.constraints) == 0
+    def empty(self) -> bool: # 定义一个名为 empty 的方法，用于检查约束列表是否为空。
+        return len(self.constraints) == 0 # 返回布尔值 True 或 False：如果 self.constraints 长度为 0，则返回 True，表示约束为空。
 
     def transform_weighting(self, get_weight: Callable[[Pred], tuple[Rational, Rational]]) \
             -> dict[Pred, tuple[Rational, Rational]]: # 定义一个名为 transform_weighting 的方法，接受一个参数 get_weight，它是一个调用签名为 Callable[[Pred], tuple[Rational, Rational]] 的函数。这个函数接收一个 Pred 类型的参数并返回一个包含两个 Rational 类型的元组。

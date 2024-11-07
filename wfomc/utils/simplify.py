@@ -4,15 +4,16 @@ import sympy as sp
 
 def my_simplify(weight):
     # 检查是否为单个表达式，如果是，划为一个元素的列表便于后续处理
+    single_input = False
     if not isinstance(weight, list):
         weight = [weight]
+        single_input = True
 
     # 将 symengine 表达式转换为 sympy 表达式
     weight = [sp.sympify(str(expr)) for expr in weight]
 
     # 定义一个函数来归一化指数部分
     def normalize_expression(expr):
-        # print(type(expr))
         # 如果表达式是加法项，要分解并遍历每一项
         if isinstance(expr, Add):
             return Add(*[normalize_expression(arg) for arg in expr.args])
@@ -40,11 +41,8 @@ def my_simplify(weight):
     # 处理每个表达式
     normalized_expressions = [normalize_expression(expr) for expr in weight]
 
-    # 输出归一化后的表达式
-    # for expr in normalized_expressions:
-    #     print(expr)
-    return normalized_expressions
-
+    # 如果输入是单个表达式，返回单个表达式，否则返回列表
+    return normalized_expressions[0] if single_input else normalized_expressions
 
 if __name__ == '__main__':
     x0, x1 = symbols("x0 x1")
@@ -55,6 +53,10 @@ if __name__ == '__main__':
         -exp((-0.0 - 2.66666666666667 * I) * pi) * x0 * x1 - exp((-0.0 - 0.666666666666667 * I) * pi),
         1  # 这是一个整数
     ]
+    # 处理单个表达式
+    single_expression = exp((-0.0 - 5.33333333333333 * I) * pi) * x0 ** 2 * x1 ** 2
+    print(my_simplify(single_expression))
+    # 处理表达式列表
     print(my_simplify(expressions))
     """
     [x0**2*x1**2*exp(0.66666666666667*I*pi) + 2*x0*x1*exp(0.66666666666667*I*pi) + exp(0.66666666666667*I*pi), 
