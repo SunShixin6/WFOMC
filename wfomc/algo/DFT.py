@@ -44,7 +44,7 @@ def q(formula: QFFormula,domain: set[Const],get_weight: Callable[[Pred], tuple[R
     tmp_cache = dict() # 用于缓存相同的ki_div_Mi 的CCG结果
     for k in D:
         dot_res = get_dot(n, k, M)  # n 和 k/M 做点乘 # 这里不能是numpy类型
-        for index in range(length):
+        for index in range(len(k)):
             ki_div_Mi = k[index] / M[index] # 获得每一个ki/Mi, 传入CCG中
             exp_ = my_simplify(exp(I * 2 * pi * dot_res)) # 因为e指数有周期性，可以进行化简到0到2pi之间
             if ki_div_Mi not in tmp_cache: # 没有计算过ki_div_Mi的CCG
@@ -85,9 +85,6 @@ def dft(cons: CardinalityConstraint, formula: QFFormula,domain: set[Const],get_w
     for _ , item in enumerate(pred_arity_dict):
         n.append(Rational(pred_cons_dict[item]))
         var_counts.append(pred_arity_dict[item])
-    # 确定 k n M 约束谓词 的维度length
-    global length
-    length = len(var_counts)
     # 确定D
     global D #
     D = generate_D(len(domain), var_counts) # 获取D = {0, 1, . . . , |∆||vars(α1)|} × · · · × {0, 1, . . . , |∆||vars(αm)|}.
