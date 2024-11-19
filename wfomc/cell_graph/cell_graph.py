@@ -210,13 +210,10 @@ class CellGraph(object):
             weight = Rational(1, 1) # 为每个单元初始化一个默认的权重 Rational(1, 1)，即权重为 1
             for i, pred in zip(cell.code, cell.preds): # 遍历单元的 code 和 preds（谓词），zip 将单元的布尔值与相应的谓词配对。
                 assert pred.arity > 0, "Nullary predicates should have been removed" # 如果谓词的元数（arity）大于 0，即谓词涉及至少一个参数：
-                if i: # 如果 i（单元的代码中的某个值）为真，
-                    if USE_DFT:
-                        weight = weight * self.get_weight(pred)[0] * exp( - I * Rational(2,1) * pi * coef) #
-                    else:
-                        weight = weight * self.get_weight(pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
-                else: # 如果 i 为假，
-                    weight = weight * self.get_weight(pred)[1] # 使用 self.get_weight(pred)[1]，即获取第二个权重并相乘。
+                if i:
+                    weight = weight * self.get_weight(pred)[0]
+                else:
+                    weight = weight * self.get_weight(pred)[1]
             weights[cell] = weight # 将计算出的权重存储到 weights 字典中，键是单元，值是其对应的权重。
         return weights # 最后返回计算得到的权重字典。
 
@@ -225,13 +222,10 @@ class CellGraph(object):
         weight = Rational(1, 1)
         for i, pred in zip(cell.code, cell.preds): # cell.code 是一个布尔值列表，cell.preds 是谓词（predicate）列表。zip 会将 cell.code 和 cell.preds 一一配对，分别赋值给 i 和 pred。
             if pred.arity == 0: # 如果当前谓词的元数（arity）为 0（即没有参数），继续进行计算
-                if i:  # 如果 i 为 True，意味着当前的谓词处于“真”的状态。
-                    if USE_DFT:
-                        weight = weight * self.get_weight(pred)[0] * exp(- I * Rational(2, 1) * pi * coef)  #
-                    else:
-                        weight = weight * self.get_weight(pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
-                else: # 如果 i 为 False，意味着当前谓词处于“假”的状态。
-                    weight = weight * self.get_weight(pred)[1] # 获取当前谓词的第二个权重（表示“假”状态时的权重），并将其与当前权重相乘。
+                if i:
+                    weight = weight * self.get_weight(pred)[0]
+                else:
+                    weight = weight * self.get_weight(pred)[1]
         return weight
 
     def _build_two_tables(self): # 这个函数的作用是构建 "two_tables"。
@@ -245,15 +239,10 @@ class CellGraph(object):
             weight = Rational(1, 1)
             for lit in model: # 对每个模型中的每个文字（谓词及其真假性）：
                 # ignore the weight appearing in cell weight # 忽略那些在单元权重中已经考虑的权重（通过检查谓词的参数）。
-                if (not (len(lit.args) == 1 or all(arg == lit.args[0] for arg in lit.args))):
-                     # 根据文字的正负性，选择对应的权重进行相乘
-                    if lit.positive: # 如果谓词为正
-                        if USE_DFT:
-                            weight = weight * self.get_weight(lit.pred)[0] * exp(- I * Rational(2, 1) * pi * coef)  #
-                        else:
-                            weight = weight * self.get_weight(lit.pred)[0]  # 使用 self.get_weight(pred)[0]，即获取该谓词的第一个权重，并将其乘以当前的 weight。
-                    else: # ；如果谓词为负
-                        weight *= self.get_weight(lit.pred)[1] # 使用第二个权重
+                if (not (len(lit.args) == 1 or all(arg == lit.args[0]
+                                                   for arg in lit.args))):
+                    weight *= (self.get_weight(lit.pred)[0] if lit.positive else
+                               self.get_weight(lit.pred)[1])
             models[frozenset(model)] = weight # 将模型及其计算的权重添加到 models 字典中，键为模型的 frozenset（使模型顺序无关），值为对应的权重。
 
         # build twotable tables
@@ -504,19 +493,11 @@ def build_cell_graphs(formula: QFFormula, # formula: 量化自由公式 (QFFormu
                       get_weight: Callable[[Pred],
                                            Tuple[RingElement, RingElement]], # get_weight: 一个函数，接受一个谓词并返回其权重。
                       leq_pred: Pred = None,
-                      use_dft = False, #表示是否使用dft构建
-                      k_div_M = None,
                       optimized: bool = False, # 当 optimized 为 True 时，构建优化的 cell graph；否则构建标准的 cell graph。
                       domain_size: int = 0, # domain_size: 整数，表示领域大小。
                       # 定义一个布尔参数 modified_cell_symmetry，默认为 False。用于控制优化模式下的 cell symmetry（单元对称性）修改行为。
                       modified_cell_symmetry: bool = False) \
         -> Generator[tuple[CellGraph, RingElement]]:  # 方法的返回类型是一个生成器，生成 CellGraph 和 RingElement 类型的元组。
-
-    global USE_DFT # 全局声明是否用DFT，就不用来回传参了
-    USE_DFT = use_dft # 全局声明是否用DFT，就不用来回传参了
-    if use_dft:
-        global coef
-        coef = k_div_M
 
     nullary_atoms = [atom for atom in formula.atoms() if atom.pred.arity == 0] # 从 formula 中获取所有空元谓词（arity 为 0 的谓词），并将它们存储在 nullary_atoms 列表中。
     if len(nullary_atoms) == 0: # 判断是否存在空元谓词。如果没有空元谓词，则进入该条件分支。

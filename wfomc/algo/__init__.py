@@ -20,6 +20,7 @@ class Algo(Enum):
     INCREMENTAL = 'incremental'
     RECURSIVE = 'recursive'
     DFT = "dft" #这里表示使用dft
+    DFT_V = "dft_v"
 
     def __str__(self):
         return self.value

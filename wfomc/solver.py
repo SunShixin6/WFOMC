@@ -8,7 +8,7 @@ import logzero
 from logzero import logger
 from contexttimer import Timer
 
-from wfomc.algo.DFT import dft
+from wfomc.algo.DFT import dft, dft_vector
 from wfomc.problems import WFOMCProblem
 from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc
 
@@ -60,13 +60,15 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational: # 这�
                 context.formula, context.domain,
                 context.get_weight, leq_pred,
             )
-        elif algo == Algo.DFT: # TODO 表示使用dft
+        elif algo == Algo.DFT: # 表示使用dft, 一个个元素执行
             res = dft(
-                context.cardinality_constraint,
+                context,
                 context.formula, context.domain,
-                context.get_weight, leq_pred,
+                context.get_dft_weight, leq_pred,
             )
-    res = context.decode_result(res) # 将结果通过上下文解码。
+        elif algo == Algo.DFT_VECTOR: #
+            res = dft_vector()
+    # res = context.decode_result(res) # 将结果通过上下文解码。DFT的时候不需要这个
     logger.info('WFOMC time: %s', t.elapsed) # 记录计算所花费的时间，并返回结果。
     return res
 
@@ -107,5 +109,5 @@ if __name__ == '__main__':
         problem, algo=args.algo
     )
     logger.info('WFOMC (arbitrary precision): %s', res)
-    round_val = round_rational(res) # 然后使用 round_rational 对结果进行四舍五入，并记录该四舍五入后的结果。
-    logger.info('WFOMC (round): %s (exp(%s))', round_val, round_val.ln())
+    # round_val = round_rational(res) # 然后使用 round_rational 对结果进行四舍五入，并记录该四舍五入后的结果。
+    # logger.info('WFOMC (round): %s (exp(%s))', round_val, round_val.ln())
