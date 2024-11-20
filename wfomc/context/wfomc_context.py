@@ -79,12 +79,6 @@ class WFOMCContext(object):
             return self.weights[pred][0] * exp(- I * Rational(2, 1) * pi * k_M), self.weights[pred][1]
         return default, default
 
-    # def get_dft_weight_vecor(self, k_M, pred: Pred) -> tuple[RingElement, RingElement]:
-    #     default = Rational(1, 1)
-    #     if pred in self.weights:
-    #         return (self.weights[pred][0] * exp(- I * Rational(2, 1) * pi * k_M), self.weights[pred][1])
-    #     return (default, default)
-
     def get_coef(self):
         pred_cons_dict = {list(item[0].keys())[0]: item[2] for item in self.cardinality_constraint.constraints}  # 构建字典，键是谓词，值是基数约束
         pred_arity_dict = {pred: pred.arity for pred in self.cardinality_constraint.preds}  # 构建字典，键是变量，值是它们的 arity 属性 # 只需要关注被约束的谓词的变量的个数

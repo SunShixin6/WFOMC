@@ -384,7 +384,7 @@ def dfs_wfomc(cell_weights, domain_size, cell_factor_tuple_list):
     return res
 
 
-def dfs_wfomc_real(cell_weights, domain_size,
+def dfs_wfomc_real(cell_weights, domain_size, exp_coef=None,
                    node: TreeNode = None):  # dfs_wfomc_real 是一个递归算法，表示在加权模型计数 (WFOMC) 问题上进行深度优先搜索的实际递归函数。# ComputeCCG(G, h)# 它遍历领域中的每个元素，对其权重进行修改，并通过图同构来优化计算。# 该函数是加权一阶模型计数（WFOMC）递归求解的真实版本。它接受三个参数：# cell_weights: 当前图的单元格权重。# domain_size: 当前领域的大小，表示常量集合中的元素个数。10# treeNode: 递归过程中使用的树节点，用于存储中间结果，类型为 TreeNode。
     res = 0
     for l in range(CELLS_NUM):  # 代码遍历一个范围为 CELLS_NUM 的循环，表示程序正处理多个“细胞”。
@@ -408,18 +408,20 @@ def dfs_wfomc_real(cell_weights, domain_size,
                     can_label = CACHE_FOR_NAUTY[tuple(adjust_vertex_colors)]
             else:  # 如果没有启用同构处理（即 ENABLE_ISOMORPHISM 为 False）
                 can_label = tuple(original_vertex_colors)  # 直接将原始的顶点颜色作为标签 can_label，跳过图同构相关的处理。
-            # 这里通过 IG_CACHE.get 从缓存中获取当前 domain_size-1 和顶点颜色（vertex_color_kind, vertex_color_count）对应的 can_label 值。
-            value = IG_CACHE.get(domain_size - 1, vertex_color_kind, vertex_color_count, can_label)  # 如果缓存中已有该组合的计算结果，则会直接返回值 value。
+            value = IG_CACHE.get(domain_size - 1, vertex_color_kind, vertex_color_count,
+                                 can_label)  # 这里通过 IG_CACHE.get 从缓存中获取当前 domain_size-1 和顶点颜色（vertex_color_kind, vertex_color_count）对应的 can_label 值。 # 如果缓存中已有该组合的计算结果，则会直接返回值 value。
             if value is None:  # 如果 value 为 None（即缓存中没有找到对应的值），程序会递归调用 dfs_wfomc_real 函数，
-                value = dfs_wfomc_real(new_cell_weights, domain_size - 1,
+                value = dfs_wfomc_real(new_cell_weights, domain_size - 1, exp_coef,
                                        node.cell_to_children[l] if PRINT_TREE else None)  # 传入新的细胞权重 new_cell_weights 和 domain_size - 1，同时检查是否启用了 PRINT_TREE 来决定是否传递 node.cell_to_children[l]。
                 value = expand(value)  # 调用 expand() 函数扩展 value，然后将扩展后的值存储到 IG_CACHE 缓存中，以便将来快速查找和使用。
                 IG_CACHE.set(domain_size - 1, vertex_color_kind, vertex_color_count, can_label,
                              value)  # 将 value 存入 IG_CACHE 缓存中，索引由 domain_size-1、vertex_color_kind、vertex_color_count 和 can_label 组合而成。
+        if exp_coef:
+            value = expand(value * exp_coef)
         if PRINT_TREE:
             node.set_value(value)  # 这里将当前的value记录到递归树中
         res += w_l * value  # 将当前细胞的权重 w_l 与计算得到的 value 相乘，并将结果累加到 res 中。 # * expand(gcd**(domain_size - 1)) # 注释中的部分可能表明程序曾考虑过对结果进行更复杂的扩展处理（例如乘以某个最大公约数的幂），但目前这一部分被注释掉了
-    return res  # 最后，函数返回累加的结果 res，这是深度优先搜索和权重乘积计算的结果。
+    return expand(res)  # 最后，函数返回累加的结果 res，这是深度优先搜索和权重乘积计算的结果。
 
 
 def get_cache_size():
@@ -439,7 +441,7 @@ def clean_global_variables():
         VERTEX_WEIGHT2COLOR_MAP, ADJACENCY_DICT, CACHE_FOR_NAUTY, \
         ENABLE_ISOMORPHISM, FACTOR2INDEX_MAP, ZERO_FACTOR_INDEX, FACTOR_ADJ_MAT
 
-    PRINT_TREE = True
+    PRINT_TREE = False
     ROOT = TreeNode([], 0)
     IG_CACHE = IsomorphicGraphCache()
     ORI_WEIGHT_ADJ_MAT = []
@@ -464,20 +466,19 @@ def recursive_wfomc(formula: QFFormula,  # # 要求解的逻辑公式。skolem�
                     domain: set[Const],
                     get_weight: Callable[[Pred], tuple[RingElement, RingElement]],  # 一个正 一个负
                     leq_pred: Pred,  # leq_pred: 谓词，用于指定“≤”关系。线性阶，这个本质上是一个binary predicate
+                    exp_coef=None,
                     real_version: bool = True,
                     ) -> RingElement:  # real_version: 是否使用真实版本的递归。权重为整数的时候，可以做优化，把它因式分解。为True，表示不做因式分解，只有特殊情况为False，才因式分解。因式分解没有写在文章里面
     domain_size = len(domain)
     res = Rational(0, 1)
 
     for cell_graph, weight in build_cell_graphs(
-            # 这行代码使用 for 循环迭代 build_cell_graphs 函数的返回值。每次迭代时，从返回的元组中解包出 cell_graph 和 weight。# build_cell_graphs 函数接收三个参数：formula、get_weight 和 leq_pred，并返回一系列的单元图及其对应的权重。 # 这里假设就build出一个cell，因为有的句子里面零元谓词，要先处理零元谓词 ，比如\forall: X:(P(X)|Q()), if Q() = T, T else \forall X:P(X)
-            formula, get_weight, leq_pred=leq_pred  # 所以在这个函数里面分情况讨论，遍历所有的为T还是F，得到化简后的句子，然后再cell_graph
+            formula, get_weight, leq_pred=leq_pred
+            # 所以在这个函数里面分情况讨论，遍历所有的为T还是F，得到化简后的句子，然后再cell_graph# 这行代码使用 for 循环迭代 build_cell_graphs 函数的返回值。每次迭代时，从返回的元组中解包出 cell_graph 和 weight。# build_cell_graphs 函数接收三个参数：formula、get_weight 和 leq_pred，并返回一系列的单元图及其对应的权重。 # 这里假设就build出一个cell，因为有的句子里面零元谓词，要先处理零元谓词 ，比如\forall: X:(P(X)|Q()), if Q() = T, T else \forall X:P(X)
     ):
         cell_weights = my_simplify(cell_graph.get_all_weights()[0])  # 获取顶点权重a
         edge_weights = [my_simplify(i) for i in cell_graph.get_all_weights()[1]]  # 获取边权重b
-
         clean_global_variables()  # 文章算法里面有很多全局变量，比如cache等等，
-
         IG_CACHE.init(domain_size)  # 然后初始化同构图缓存IG_CACHE。
         global ORI_WEIGHT_ADJ_MAT, CELLS_NUM
 
@@ -499,9 +500,9 @@ def recursive_wfomc(formula: QFFormula,  # # 要求解的逻辑公式。skolem�
         else:  # 看这里，上面的不要看 # 如果 real_version 是 True，则调用真实版本的递归 dfs_wfomc_real，并将结果返回。
             global ROOT
             ROOT.cell_weights = cell_weights
-            res_ = dfs_wfomc_real(cell_weights, domain_size, ROOT)  # 这里就是算法的第五行 类似于一个树的深度优先搜索，其实就是递归，
+            res_ = dfs_wfomc_real(cell_weights, domain_size, exp_coef, ROOT)  # 这里就是算法的第五行 类似于一个树的深度优先搜索，其实就是递归，
             if PRINT_TREE:
                 print_tree(ROOT)
         res = res + weight * res_
-        print(weight * res_)
-    return res
+        # print(weight * res_)
+    return expand(res)
