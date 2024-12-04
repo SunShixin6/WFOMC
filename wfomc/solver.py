@@ -10,7 +10,7 @@ from contexttimer import Timer
 
 from wfomc.algo.DFT import dft
 from wfomc.problems import WFOMCProblem
-from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc
+from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc, incremental_wfomc_new
 
 from wfomc.utils import MultinomialCoefficients, Rational, round_rational
 from wfomc.context import WFOMCContext
@@ -18,9 +18,8 @@ from wfomc.parser import parse_input
 from wfomc.fol.syntax import Pred
 
 
-# 这段代码实现了加权一阶模型计数（Weighted First-Order Model Counting, WFOMC）的算法，使用不同的计数方法处理给定的输入
-# 定义一个名为 wfomc 的函数，它接收两个参数：problem：一个 WFOMCSProblem 实例，表示需要解决的具体问题。algo：算法选择，默认为 STANDARD。返回值类型为 Rational，即有理数结果。
 def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这里不仅仅是有理数，还可能是多项式
+    # 这段代码实现了加权一阶模型计数（Weighted First-Order Model Counting, WFOMC）的算法，使用不同的计数方法处理给定的输入 # 定义一个名为 wfomc 的函数，它接收两个参数：problem：一个 WFOMCSProblem 实例，表示需要解决的具体问题。algo：算法选择，默认为 STANDARD。返回值类型为 Rational，即有理数结果。
     # both standard and fast WFOMCs need precomputation
     if algo == Algo.STANDARD or algo == Algo.FAST or \
             algo == algo.FASTv2:
@@ -56,6 +55,11 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
                 context.formula, context.domain,
                 context.get_weight, leq_pred
             )
+        elif algo == Algo.INCREMENTAL_NEW:  # 增量 WFOMC，适合处理包含 LEQ 谓词的情景。
+            res = incremental_wfomc_new(
+                context, leq_pred
+            )
+
         elif algo == Algo.RECURSIVE:
             res = recursive_wfomc(
                 context.formula, context.domain,
@@ -109,6 +113,6 @@ if __name__ == '__main__':
         problem, algo=args.algo
     )
     print("最终结果：", res)
-    # logger.info('WFOMC (arbitrary precision): %s', res)
-    # round_val = round_rational(res) # 然后使用 round_rational 对结果进行四舍五入，并记录该四舍五入后的结果。
-    # logger.info('WFOMC (round): %s (exp(%s))', round_val, round_val.ln())
+    logger.info('WFOMC (arbitrary precision): %s', res)
+    round_val = round_rational(res)  # 然后使用 round_rational 对结果进行四舍五入，并记录该四舍五入后的结果。
+    logger.info('WFOMC (round): %s (exp(%s))', round_val, round_val.ln())
