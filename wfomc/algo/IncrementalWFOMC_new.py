@@ -117,6 +117,7 @@ def incremental_wfomc_new(context: WFOMCContext, leq_pred) -> RingElement: # 接
             else:
                 return Rational(0, 1)
         ret = Rational(0, 1) # 初始化结果为 0。
+
         for i, cell in enumerate(cells): # 遍历这个element可以取的cell type，即遍历所有单元格。
             if old_ivec[i] == 0: # 如果当前配置中该单元格的数量为零，则跳过该单元格。
                 continue

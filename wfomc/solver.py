@@ -36,7 +36,7 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
             logger.info('Invoke incremental WFOMC')
     else:
         leq_pred = None
-
+    res = None
     with Timer() as t:
         if algo == Algo.STANDARD:
             res = standard_wfomc(
@@ -52,6 +52,7 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
             )
         elif algo == Algo.INCREMENTAL:  # 增量 WFOMC，适合处理包含 LEQ 谓词的情景。
             res = incremental_wfomc(
+                context,
                 context.formula, context.domain,
                 context.get_weight, leq_pred
             )
@@ -71,7 +72,7 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
                 context.formula, context.domain,
                 context.get_dft_weight, leq_pred,
             )
-    if algo != Algo.DFT:
+    if algo not in (Algo.DFT, Algo.INCREMENTAL_NEW):
         res = context.decode_result(res)  # 将结果通过上下文解码。DFT的时候不需要这个
     logger.info('WFOMC time: %s', t.elapsed)  # 记录计算所花费的时间，并返回结果。
     return res
