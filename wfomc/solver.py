@@ -10,7 +10,7 @@ from contexttimer import Timer
 
 from wfomc.algo.DFT import dft
 from wfomc.problems import WFOMCProblem
-from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc, incremental_wfomc_new
+from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc, incremental_wfomc_new, incremental_wfomc_new2
 
 from wfomc.utils import MultinomialCoefficients, Rational, round_rational
 from wfomc.context import WFOMCContext
@@ -60,7 +60,10 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
             res = incremental_wfomc_new(
                 context, leq_pred
             )
-
+        elif algo == Algo.INCREMENTAL_NEW2:  # 增量 WFOMC，适合处理包含 LEQ 谓词的情景。
+            res = incremental_wfomc_new2(
+                context, leq_pred
+            )
         elif algo == Algo.RECURSIVE:
             res = recursive_wfomc(
                 context.formula, context.domain,

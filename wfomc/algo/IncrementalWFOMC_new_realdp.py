@@ -10,7 +10,7 @@ from wfomc.utils import multinomial
 from wfomc.utils.multinomial import MultinomialCoefficients
 from wfomc.utils.polynomial import coeff_dict, expand
 
-def incremental_wfomc_new(context: WFOMCContext, leq_pred) -> RingElement:
+def incremental_wfomc_new2(context: WFOMCContext, leq_pred) -> RingElement:
     new_ccs = True
 
     formula = context.formula
