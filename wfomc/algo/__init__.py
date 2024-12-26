@@ -1,7 +1,7 @@
 from enum import Enum
 
-from .IncrementalWFOMC_teacher import incremental_wfomc_new
-from .IncrementalWFOMC_new_realdp import incremental_wfomc_new2
+from .IncrementalWFOMC_teacher import incremental_wfomc_teacher
+from .IncrementalWFOMC_dp import incremental_wfomc_dp
 from .StandardWFOMC import standard_wfomc
 from .FastWFOMC import fast_wfomc
 from .IncrementalWFOMC import incremental_wfomc
@@ -11,8 +11,8 @@ __all__ = [
     "standard_wfomc",
     "fast_wfomc",  # 不用了解
     "incremental_wfomc",  # 不用了解
-    "incremental_wfomc_new",  # 不用了解
-    "incremental_wfomc_new2",
+    # "incremental_wfomc_teacher",  # 不用了解
+    "incremental_wfomc_dp",
     "recursive_wfomc"
 ]
 
@@ -22,8 +22,8 @@ class Algo(Enum):
     FAST = 'fast'
     FASTv2 = 'fastv2'
     INCREMENTAL = 'incremental'
-    INCREMENTAL_NEW = 'incremental_new'
-    INCREMENTAL_NEW2 = 'incremental_new2'
+    # INCREMENTAL_TEACHER = 'incremental_teacher'
+    INCREMENTAL_DP = 'incremental_dp'
     RECURSIVE = 'recursive'
     DFT = "dft" #这里表示使用dft
     DFT_V = "dft_v"
