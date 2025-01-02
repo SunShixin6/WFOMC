@@ -10,7 +10,7 @@ from contexttimer import Timer
 
 from wfomc.algo.DFT import dft
 from wfomc.problems import WFOMCProblem
-from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc, incremental_wfomc_teacher, incremental_wfomc_dp
+from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc
 
 from wfomc.utils import MultinomialCoefficients, Rational, round_rational
 from wfomc.context import WFOMCContext
@@ -52,6 +52,7 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
             )
         elif algo == Algo.INCREMENTAL:  # 增量 WFOMC，适合处理包含 LEQ 谓词的情景。
             res = incremental_wfomc(
+                context,
                 context.formula, context.domain,
                 context.get_weight, leq_pred
             )
@@ -59,11 +60,12 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
         #     res = incremental_wfomc_teacher(
         #         context, leq_pred
         #     )
-        elif algo == Algo.INCREMENTAL_DP:  # 增量 WFOMC，适合处理包含 LEQ 谓词的情景。
-            res = incremental_wfomc_dp(
-                context, context.formula, context.domain,
-                context.get_weight, leq_pred
-            )
+        # elif algo == Algo.INCREMENTAL_DP:  # 增量 WFOMC，适合处理包含 LEQ 谓词的情景。
+        #     res = incremental_wfomc_dp(
+        #         context,
+        #         context, context.formula, context.domain,
+        #         context.get_weight, leq_pred
+        #     )
         elif algo == Algo.RECURSIVE:
             res = recursive_wfomc(
                 context.formula, context.domain,
@@ -75,8 +77,8 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:  # 这
                 context.formula, context.domain,
                 context.get_dft_weight, leq_pred,
             )
-    if algo not in (Algo.DFT, Algo.INCREMENTAL_DP):
-        res = context.decode_result(res)  # 将结果通过上下文解码。DFT的时候不需要这个
+    # if algo not in (Algo.DFT, Algo.INCREMENTAL_DP):
+    #     res = context.decode_result(res)  # 将结果通过上下文解码。DFT的时候不需要这个
     logger.info('WFOMC time: %s', t.elapsed)  # 记录计算所花费的时间，并返回结果。
     return res
 
