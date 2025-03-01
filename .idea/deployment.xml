@@ -1,47 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="root@192.168.88.161:22 password (3)" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@192.168.88.161:22 password (2)" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false">
     <option name="confirmBeforeUploading" value="false" />
     <serverData>
-      <paths name="ai_doctor">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="original">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="root@192.168.88.161:22 password">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="root@192.168.88.161:22 password (2)">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="root@192.168.88.161:22 password (3)">
         <serverdata>
           <mappings>
             <mapping deploy="/root/workspace/wfomc" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="root@192.168.88.161:22 password (4)">
+      <paths name="root@192.168.88.161:22 password (2)">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/root/pycharm_workspace/WFOMC" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="sunshixin@222.27.87.87:22 agent">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/sunshixin/workspace/WFOMC" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
