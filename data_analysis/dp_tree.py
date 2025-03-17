@@ -9,7 +9,12 @@ import graphviz
 from collections import deque
 import pandas as pd
 
+node_dict = {}  # 临时缓存之前的节点
+domain_size = 5
+
+
 class TreeNode:
+
     def __init__(self, d_new, k_new, w_new, level, parent=None):
         self.d_new = d_new
         self.k_new = k_new
@@ -28,7 +33,7 @@ class TreeNode:
     __repr__ = __str__
 
 
-def save_to_file(node_dict, domain_size):
+def save_to_file():
     """
     将树保存到文件中
     """
@@ -50,6 +55,7 @@ def save_to_file(node_dict, domain_size):
     with open("/root/pycharm_workspace/WFOMC/data_analysis/tree.pkl", 'wb') as f:
         pickle.dump(root, f)
         print("树已保存到文件中")
+
 
 def save_to_svg():
     """
@@ -92,7 +98,7 @@ def save_to_svg():
     visualize_tree(root)
 
 
-def tree_to_dict(domain_size):
+def decompose_tree():
     """
     将树转为字典
     """
@@ -136,6 +142,7 @@ def tree_to_dict(domain_size):
 
     print("tree_to_dict树转为字典")
 
+
 def data_process():
     """
     字典数据处理
@@ -143,17 +150,17 @@ def data_process():
     with open("/root/pycharm_workspace/WFOMC/data_analysis/tree_to_dict.pkl", "rb") as f:
         all_dict = pickle.load(f)
 
-        for subproblem_size in range(0, 6):
+        for subproblem_size in range(0, 5):
             subproblem_list = all_dict[subproblem_size]
             d_k_w = dict()
-            for item in subproblem_list: # ((0,), (1, 0, 0, 0, 0), 1),
-                if item[0] not in d_k_w: # d:(0,)
+            for item in subproblem_list:  # ((0,), (1, 0, 0, 0, 0), 1),
+                if item[0] not in d_k_w:  # d:(0,)
                     k_w = dict()
                 else:
                     k_w = d_k_w[item[0]]
 
-                if item[1] not in k_w: # k:(1, 0, 0, 0, 0)
-                    k_w[item[1]] = item[2] # w:1
+                if item[1] not in k_w:  # k:(1, 0, 0, 0, 0)
+                    k_w[item[1]] = item[2]  # w:1
                 else:
                     k_w[item[1]] += item[2]
 
@@ -163,32 +170,13 @@ def data_process():
             for d, k_w in d_k_w.items():
                 for k, w in k_w.items():
                     # if w != 0:
-                        df.append([d[0], k, w])
+                    df.append([d[0], k, w])
 
             df = pd.DataFrame(df, columns=["ccs", "ivec(cell config)", "weight"])
             df.to_csv(f"/root/pycharm_workspace/WFOMC/data_analysis/after/after_{subproblem_size}.csv", index=False)
         print("data_process成功")
+
+
 if __name__ == '__main__':
-    tree_to_dict(5)
+    decompose_tree()
     data_process()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
