@@ -168,7 +168,7 @@ class WFOMCContext(object):
         if self.contain_cardinality_constraint():  # 检查是否包含基数约束（cardinality constraint）
             self.cardinality_constraint.build()  # 如果包含基数约束，则调用 self.cardinality_constraint.build() 来构建该约束。# 基数约束通常用于限制集合的大小或满足某些条件的元素数量，可能与数据集合或约束求解相关。
 
-        for ext_formula in self.ext_formulas:  # 遍历 self.ext_formulas 列表中的每个扩展公式（ext_formula）
+        for ext_formula in self.ext_formulas:  # 遍历 self.ext_formulas 列表中的每个存在量词公式（ext_formula）
             self.formula = self.formula & self._skolemize_one_formula(
                 ext_formula)  # 然后将每个扩展公式经过 _skolemize_one_formula 方法处理后，与当前的 self.formula 进行逻辑与运算（&）。# Skolem化通常用于消除逻辑公式中的存在量词，使公式更便于处理或简化，常见于自动定理证明领域。
 

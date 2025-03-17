@@ -108,7 +108,7 @@ class CardinalityConstraint(Constraint):
 
     def build(self): # 这段代码是一个类中的方法，名为 build，其主要功能是构建一个用于验证约束条件的表达式。
         validator_list: list[str] = [] # 创建一个空列表 validator_list，用于存储生成的验证表达式。类型注解 list[str] 指定这个列表将只包含字符串。
-        for expr, comp, param in self.constraints:# 遍历 self.constraints 中的每个元素，expr、comp 和 param 分别代表约束条件的表达式、比较符号和参数值。
+        for expr, comp, param in self.constraints:# expr、comp 和 param 分别代表约束条件的表达式、比较符号和参数值。
             single_validator = [] # 初始化一个空列表 single_validator，用于存储当前约束的单个验证表达式。
             for pred, coef in expr.items(): # 遍历 expr 中的每个项，pred 是约束的一个预测变量（可能是一个对象），coef 是与该预测变量相乘的系数。
                 single_validator.append(f'{coef} * {{{pred.name}}}') # 将格式化字符串 '{coef} * {{{pred.name}}}' 添加到 single_validator 列表中，表示用系数乘以预测变量的名称（用大括号 {} 包裹变量名可能是为了在某些模板系统中进行替换）。
