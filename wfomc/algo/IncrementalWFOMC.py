@@ -6,8 +6,8 @@ from wfomc.context import WFOMCContext
 from wfomc.utils import RingElement, Rational
 from wfomc.fol.syntax import Const, Pred, QFFormula
 from collections import defaultdict
-from data_analysis.dp_tree import *
-import data_analysis.dp_tree as dp_tree
+from data_analysis.save_show import *
+import data_analysis.save_show as save_show
 
 def incremental_wfomc(context: WFOMCContext,
                       formula: QFFormula,
@@ -16,7 +16,9 @@ def incremental_wfomc(context: WFOMCContext,
                       leq_pred: Pred = None) -> RingElement:
     res = Rational(0, 1)
     domain_size = len(domain)
-    dp_tree.domain_size = domain_size
+    save_show.init_script_dir()
+    save_show.save_domain_size(domain_size)
+    save_show.init_domain_size()
 
     ccs: List[int] = list()
     gen_vars: List[RingElement] = list()
@@ -46,8 +48,8 @@ def incremental_wfomc(context: WFOMCContext,
             k_new = tuple(int(i == j) for i in range(n_cells))  # 构造 δ_j（在 j 位置为1，其余为0的元组）。
             for d_new, W_new in get_coef(w_j, gen_vars):
                 T[(d_new, k_new)] = W_new
-                new_node = TreeNode(d_new, k_new, W_new, sum(k_new))
-                dp_tree.node_dict[(d_new, k_new)] = new_node # 临时缓存
+                new_node = TreeNode(d_new, k_new, W_new, sum(k_new)) # NOTE: 创建新节点，并添加到字典中
+                save_show.node_dict[(d_new, k_new)] = new_node # 临时缓存
 
         for i in range(2, domain_size + 1):  # domain中剩下的元素
             old_T = T  # 把上一轮的结果作为 T_{i-1}。
@@ -76,17 +78,20 @@ def incremental_wfomc(context: WFOMCContext,
                         W_new = W_old * W_delta
                         T[(d_new, k_new)] = T.get((d_new, k_new), Rational(0, 1)) + W_new  # 更新T
 
+                        # NOTE：新增
                         new_node = TreeNode(d_new, k_new, W_new, sum(k_new))  # 创建新节点（父节点）
-                        old_node = dp_tree.node_dict.get((d_old, k_old), None)  # 查找旧节点（子节点）
+                        old_node = save_show.node_dict.get((d_old, k_old), None)  # 查找旧节点（子节点）
+                        if not old_node:
+                            print("old node is None")
                         if old_node:
                             new_node.add_child(old_node)  # 将子节点添加到父节点的 children 列表中
-                        dp_tree.node_dict[(d_new, k_new)] = new_node  # 将新节点添加到字典中
+                        save_show.node_dict[(d_new, k_new)] = new_node  # 将新节点添加到字典中
 
         res_sum = sum(W for (d, k), W in T.items() if d == tuple(ccs))  # 对T中的元素遍历，选取满足domain_size和k的 W 求和
 
         res += weight * res_sum
 
-    # save_to_file()
-    # save_to_svg()
+    tree_to_file()
+    tree_to_svg()
 
     return res
