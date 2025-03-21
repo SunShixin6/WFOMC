@@ -118,7 +118,6 @@ if __name__ == '__main__':
     res = wfomc(  # 调用 wfomc 函数执行计算，记录结果（有理数精度）。
         problem, algo=args.algo
     )
-    print("最终结果：", res)
-    logger.info('WFOMC (arbitrary precision): %s', res)
+    logger.info('WFOMC 最终结果： (arbitrary precision): %s', res)
     round_val = round_rational(res)  # 然后使用 round_rational 对结果进行四舍五入，并记录该四舍五入后的结果。
     logger.info('WFOMC (round): %s (exp(%s))', round_val, round_val.ln())

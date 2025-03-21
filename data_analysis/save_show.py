@@ -2,6 +2,7 @@ import json
 import os.path
 import sys
 from pprint import pprint
+import logging as logger
 
 sys.path.append("/root/pycharm_workspace/WFOMC")  # 确保 wfomc 模块可以被找到
 
@@ -16,25 +17,26 @@ pd.set_option('display.max_rows', None)  # 显示所有行
 # 全局变量
 node_dict = {}  # 定义一个字典临时缓存之前变量过的节点
 domain_size = None
-script_dir = None  # 当前脚本所在的目录。
+cwd = None  # 当前脚本所在的目录。
 
 
-def init_script_dir():  # 初始化 script_dir，获取当前脚本所在的目录。
-    global script_dir
-    script_dir = os.path.dirname(os.path.abspath(__file__))  # 获取当前脚本所在的目录
-    ensure_clean_directory(os.path.join(script_dir, "after"))  # 确保目标目录是空的，如果存在文件则删除。
-    ensure_clean_directory(os.path.join(script_dir, "before"))
+def init_script_dir():  # 初始化 cwd，获取当前脚本所在的目录。
+    global cwd
+    cwd = os.path.dirname(os.path.abspath(__file__))  # 获取当前脚本所在的目录
+    ensure_clean_directory(os.path.join(cwd, "after"))  # 确保目标目录是空的，如果存在文件则删除。
+    ensure_clean_directory(os.path.join(cwd, "before"))
+    logger.info("旧数据清除成功")
 
 
 def init_domain_size():  # 初始化 domain_size
     global domain_size
-    with open(os.path.join(script_dir, "domain_size.txt"), "r") as f:
+    with open(os.path.join(cwd, "domain_size.txt"), "r") as f:
         domain_size = int(f.read())
 
 
 def save_domain_size(domain_size):
-    global script_dir
-    with open(os.path.join(script_dir, "domain_size.txt"), "w") as f:
+    global cwd
+    with open(os.path.join(cwd, "domain_size.txt"), "w") as f:
         f.write(str(domain_size))
 
 
@@ -70,10 +72,8 @@ class TreeNode:  # NOTE: 创建类
 
 
 def tree_to_file():
-    """
-    将树保存到文件中
-    """
-    global script_dir
+    ## 将树保存到文件中
+    global cwd
     virtual_root = TreeNode(d_new="root", k_new="root", w_new="root", level="root")  ## 创建一个虚拟的根节点
     last_layer_nodes = [node for node in node_dict.values() if node.level == domain_size]  ## 收集所有最后一层的节点
     for node in last_layer_nodes:  # 将所有最后一层的节点添加到虚拟根节点的子节点中
@@ -82,25 +82,21 @@ def tree_to_file():
     root = virtual_root  # 设置根节点
     if root is None:
         print("错误：未找到根节点，请检查动态规划的逻辑")
-    with open(os.path.join(script_dir, "tree.pkl"), 'wb') as f:
+    with open(os.path.join(cwd, "tree.pkl"), 'wb') as f:
         pickle.dump(root, f)
-        print("树已保存到文件tree.pkl中")
+        logger.info("树已保存到文件 data_analysis/tree.pkl中")
 
 
 def tree_to_svg():
     ## 读取保存的树并绘制成svg
-    global script_dir
-    with open(os.path.join(script_dir, "tree.pkl"), "rb") as f:
+    global cwd
+    with open(os.path.join(cwd, "tree.pkl"), "rb") as f:
         root = pickle.load(f)
         if not root:
             print("root为空")
 
-    def visualize_tree(root, output_file=os.path.join(script_dir, "tree"), dpi=1000):
-        """
-        使用 pydot 绘制树的可视化图形。
-        :param root: 树的根节点
-        :param output_file: 输出的图片文件名
-        """
+    def visualize_tree(root, output_file=os.path.join(cwd, "tree"), dpi=1000):
+        ## 使用 pydot 绘制树的可视化图形。
         graph = pydot.Dot(graph_type='digraph')  # 创建一个有向图
 
         def add_nodes_edges(node, parent_id=None):
@@ -119,39 +115,35 @@ def tree_to_svg():
         dot = graphviz.Digraph(format='svg')  # 创建一个SVG格式的图
         dot.body.extend([line for line in dot_data.split(' ') if line.strip() and not line.startswith('strict')])  # 添加图的主体内容
         dot.render(output_file, cleanup=True)  # 渲染并保存图
-        print(f"树的可视化图形已保存到文件: {output_file}.svg")  # 打印保存成功信息
+        logger.info(f"树的可视化图形已保存到文件: data_analysis/{output_file}.svg")  # 打印保存成功信息
 
     visualize_tree(root)
 
 
 def tree_to_dict():
-    ### 将树转为字典
-    global script_dir  # 查找路径
-    with open(os.path.join(script_dir, "tree.pkl"), "rb") as f:  # 加载文件
+    ## 将树转为字典
+    global cwd  # 查找路径
+    with open(os.path.join(cwd, "tree.pkl"), "rb") as f:  # 加载文件
         root = pickle.load(f)
         if not root:
             print("root为空")
             return None
-    all_dict = dict((n, list()) for n in range(domain_size + 1))  ## 存储所有从根节点到叶子节点的所有的路径
+    all_dict = dict((n, list()) for n in range(domain_size + 1))  ## 存储所有从根节点到叶子节点的dfs遍历结果，domain_size作为键
 
-    queue = deque([root])
-    # print("queue:", queue)
-    while queue:
-        node = queue.popleft()
-        if node.level != "root":
+    def dfs(node):  # 深度优先遍历，将节点信息存储到字典中。
+        if node.level != "root":  # 忽略虚拟根节点
             all_dict[node.level].append((node.d_new, node.k_new, node.w_new))
+        for child in node.children:  # 递归遍历子节点
+            dfs(child)
 
-        for child in node.children:
-            # print("child",child)
-            queue.append(child)
-    # # print("all_dict",all_dict)
+    dfs(root)  # 从根节点开始遍历
 
-    ## 将字典保存为csv文件
-    for i in range(domain_size + 1):
-        df = pd.DataFrame(all_dict[i], columns=["ccs", "ivec(cell config)", "weight"])
-        df.to_csv(os.path.join(script_dir, "before", f"before_{i + 1}.csv"), index=False)  # 保存为csv文件
-
-    with open(os.path.join(script_dir, "tree_to_dict.pkl"), "wb") as f:
+    ## 将all_dict字典保存为csv文件
+    for level in range(domain_size + 1):  ## 根据domain_size的值，提取列表，转为df对象，存储到csv文件中
+        df = pd.DataFrame(all_dict[level], columns=["ccs", "ivec(cell config)", "weight"])
+        df.to_csv(os.path.join(cwd, "before", f"before_{level + 1}.csv"), index=False)  # 保存为csv文件
+    ## 将整个all_dict字典存储
+    with open(os.path.join(cwd, "tree_to_dict.pkl"), "wb") as f:
         pickle.dump(all_dict, f)
     print("树转为字典，存储在文件tree_to_dict.pkl中")
     # pprint(all_dict)  ## 格式化打印字典
@@ -159,8 +151,8 @@ def tree_to_dict():
 
 def decompose_data():
     ## 字典数据处理
-    global script_dir
-    with open(os.path.join(script_dir, "tree_to_dict.pkl"), "rb") as f:  # 读取存储的字典tree_to_dict.pkl文件
+    global cwd
+    with open(os.path.join(cwd, "tree_to_dict.pkl"), "rb") as f:  # 读取存储的字典tree_to_dict.pkl文件
         all_dict = pickle.load(f)
 
     for subproblem_size in range(0, domain_size + 1):
@@ -186,12 +178,12 @@ def decompose_data():
                 df.append([d[0], k, w])
 
         df = pd.DataFrame(df, columns=["ccs", "ivec(cell config)", "weight"])
-        df.to_csv(os.path.join(script_dir, "after", f"after_{subproblem_size + 1}.csv"), index=False)
+        df.to_csv(os.path.join(cwd, "after", f"after_{subproblem_size + 1}.csv"), index=False)
     print("数据处理成功成功，结果存放在after文件夹中")
 
 
 if __name__ == '__main__':
-    init_script_dir()  # 初始化 script_dir，获取当前脚本所在的目录。
+    init_script_dir()  # 初始化 cwd，获取当前脚本所在的目录。
     init_domain_size()  # 从文件中读取 domain_size 是多少
     tree_to_dict()
     decompose_data()
