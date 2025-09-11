@@ -2,5 +2,5 @@
 \forall X: (\exists Y: (perm(X,Y))) &
 \forall X: (\exists Y: (perm(Y,X)))
 
-domain = 5
-|perm| = 5
+domain = 6
+|perm| = 6

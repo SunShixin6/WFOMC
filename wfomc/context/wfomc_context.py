@@ -104,18 +104,18 @@ class WFOMCContext(object):
 
     def _skolemize(self) -> QFFormula:
         """
-        Skolemize the sentence
+        Skolemize the sentence 整个句子skolem
         """
-        formula = self.sentence.uni_formula
+        formula = self.sentence.uni_formula # 获取全称量词部分
         while(not isinstance(formula, QFFormula)):
             formula = formula.quantified_formula
-        for ext_formula in self.sentence.ext_formulas:
-            formula = formula & self._skolemize_one_formula(ext_formula)
+        for ext_formula in self.sentence.ext_formulas: # 获取存在量词部分
+            formula = formula & self._skolemize_one_formula(ext_formula) # 在循环中，调用 _skolemize_one_formula 来处理列表中的每一个公式。将每次处理后的结果合并起来。
         return formula
 
     def _build(self):
-        self.formula = self.sentence.uni_formula
-        while(not isinstance(self.formula, QFFormula)):
+        self.formula = self.sentence.uni_formula # 获取全称量词部分
+        while(not isinstance(self.formula, QFFormula)): # 获取无量词部分
             self.formula = self.formula.quantified_formula
 
         if self.unary_evidence:
@@ -143,21 +143,23 @@ class WFOMCContext(object):
                 self.repeat_factor *= repeat_factor
 
         self.ext_formulas = self.sentence.ext_formulas
+
+        ## 处理计数量词
         if self.sentence.contain_counting_quantifier():
             logger.info('translate SC2 to SNF')
             if not self.contain_cardinality_constraint():
                 self.cardinality_constraint = CardinalityConstraint()
-            for cnt_formula in self.sentence.cnt_formulas:
+            for cnt_formula in self.sentence.cnt_formulas: # 对于每个计数公式，它会调用 convert_counting_formula 函数。这个工具函数执行了论文中的 SC² → FO_CC² 归约步骤。
                 uni_formula, ext_formulas, cardinality_constraint, repeat_factor = \
-                    convert_counting_formula(cnt_formula, self.domain)
+                    convert_counting_formula(cnt_formula, self.domain) # 一个新的全称量词公式，它被添加到主公式中。新的存在量词公式，它们被收集起来以便稍后进行斯科莱姆化。一个基数约束（例如，|R| = k*n）。一个用于在最后调整模型计数的 repeat_factor。
                 self.formula = self.formula & uni_formula
                 self.ext_formulas = self.ext_formulas + ext_formulas
                 self.cardinality_constraint.add_simple_constraint(*cardinality_constraint)
                 self.repeat_factor *= repeat_factor
-
+        ## 处理基数约束
         if self.contain_cardinality_constraint():
             self.cardinality_constraint.build()
-
+        ## # skolemize 存在量词
         for ext_formula in self.ext_formulas:
             self.formula = self.formula & self._skolemize_one_formula(ext_formula)
 

@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0920a5a7-ce94-4fae-8031-2a797d4af140" name="Changes" comment="update">
-      <change afterPath="$PROJECT_DIR$/models/2-colored-graph.wfomcs" afterDir="false" />
+    <list default="true" id="0920a5a7-ce94-4fae-8031-2a797d4af140" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/BA.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/BA.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/permutation-no-fix.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/permutation-no-fix.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/algo/DRWFOMC.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/algo/DRWFOMC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/context/dr_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/context/dr_context.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/context/wfomc_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/context/wfomc_context.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wfomc/fol/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/fol/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/solver.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +98,7 @@
     "Python.dr_2-regular-graph.executor": "Run",
     "Python.dr_2-regular-graph.wfomcs.executor": "Run",
     "Python.dr_3-colored-graph .executor": "Run",
-    "Python.dr_BA.executor": "Run",
+    "Python.dr_BA.executor": "Debug",
     "Python.dr_card_general.executor": "Debug",
     "Python.dr_function-no-fix.wfomcs.executor": "Run",
     "Python.dr_le.executor": "Run",
@@ -102,6 +107,7 @@
     "Python.dr_modk.executor": "Debug",
     "Python.dr_performance (1).executor": "Run",
     "Python.dr_performance.executor": "Run",
+    "Python.dr_perm-no-fix.executor": "Run",
     "Python.dr_perm.executor": "Run",
     "Python.dr_permutation-no-fix-sc2.executor": "Run",
     "Python.dr_permutation-no-fix.executor": "Run",
@@ -111,12 +117,15 @@
     "Python.fast_2-colored-graph.executor": "Run",
     "Python.fast_3-colored-graph  (1).executor": "Run",
     "Python.fast_3-colored-graph .executor": "Run",
+    "Python.fast_perm-no-fix.executor": "Run",
     "Python.fast_regular_graph-sc2 .executor": "Run",
     "Python.fo2_to_cnf_converter.executor": "Run",
     "Python.inc_2-color-graph .executor": "Run",
-    "Python.inc_2-regular-graph .executor": "Run",
+    "Python.inc_2-regular-graph  (1).executor": "Run",
+    "Python.inc_2-regular-graph .executor": "Coverage",
     "Python.inc_2_regular_graph-sc2.executor": "Run",
     "Python.inc_BA .executor": "Run",
+    "Python.inc_perm-no-fix.executor": "Run",
     "Python.inc_regular_graph-sc2 .executor": "Run",
     "Python.incremental_dp_cc.executor": "Debug",
     "Python.incremental_dp_cc_permutation.executor": "Run",
@@ -168,7 +177,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "web.server",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -188,7 +197,7 @@
       <recent name="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC\tmp_test" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.inc_2-color-graph ">
+  <component name="RunManager" selected="Python.dr_perm-no-fix">
     <configuration name="comparison_plotter" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="WFOMC" />
       <option name="ENV_FILES" value="" />
@@ -260,7 +269,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="dr_2-regular-graph" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="dr_2-regular-graph-sc2" type="PythonConfigurationType" factoryName="Python">
       <module name="WFOMC" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -277,6 +286,30 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wfomc/solver.py" />
       <option name="PARAMETERS" value="-i ./models/2-regular-graph-sc2.wfomcs -a dr" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="dr_2-regular-graph" type="PythonConfigurationType" factoryName="Python">
+      <module name="WFOMC" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Remote Python 3.9.23 (sftp://sunshixin@222.27.87.23:12900/home/sunshixin/anaconda3/envs/experiment/bin/python3.9) (2)" />
+      <option name="WORKING_DIRECTORY" value="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wfomc/solver.py" />
+      <option name="PARAMETERS" value="-i ./models/2-regular-graph.wfomcs -a dr" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -378,7 +411,55 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="inc_2-color-graph " type="PythonConfigurationType" factoryName="Python">
+    <configuration name="dr_perm-no-fix" type="PythonConfigurationType" factoryName="Python">
+      <module name="WFOMC" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Remote Python 3.9.23 (sftp://sunshixin@222.27.87.23:12900/home/sunshixin/anaconda3/envs/experiment/bin/python3.9) (2)" />
+      <option name="WORKING_DIRECTORY" value="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wfomc/solver.py" />
+      <option name="PARAMETERS" value="-i ./models/permutation-no-fix.wfomcs -a dr" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="fast_perm-no-fix" type="PythonConfigurationType" factoryName="Python">
+      <module name="WFOMC" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Remote Python 3.9.23 (sftp://sunshixin@222.27.87.23:12900/home/sunshixin/anaconda3/envs/experiment/bin/python3.9) (2)" />
+      <option name="WORKING_DIRECTORY" value="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wfomc/solver.py" />
+      <option name="PARAMETERS" value="-i ./models/permutation-no-fix.wfomcs -a fast" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="inc_2-color-graph -sc2" type="PythonConfigurationType" factoryName="Python">
       <module name="WFOMC" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -402,6 +483,30 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="inc_2-regular-graph  (1)" type="PythonConfigurationType" factoryName="Python">
+      <module name="WFOMC" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Remote Python 3.9.23 (sftp://sunshixin@222.27.87.23:12900/home/sunshixin/anaconda3/envs/experiment/bin/python3.9) (2)" />
+      <option name="WORKING_DIRECTORY" value="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wfomc/solver.py" />
+      <option name="PARAMETERS" value="-i ./models/2-regular-graph.wfomcs -a recursive" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="inc_2-regular-graph " type="PythonConfigurationType" factoryName="Python">
       <module name="WFOMC" />
       <option name="ENV_FILES" value="" />
@@ -418,7 +523,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wfomc/solver.py" />
-      <option name="PARAMETERS" value="-i ./models/2-regular-graph-sc2.wfomcs -a incremental" />
+      <option name="PARAMETERS" value="-i ./models/2-regular-graph.wfomcs -a incremental" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -502,10 +607,14 @@
       <item itemvalue="Python.dr_BA" />
       <item itemvalue="Python.inc_BA " />
       <item itemvalue="Python.dr_0mod2" />
+      <item itemvalue="Python.dr_2-regular-graph-sc2" />
       <item itemvalue="Python.dr_2-regular-graph" />
-      <item itemvalue="Python.dr_2-color-graph " />
-      <item itemvalue="Python.inc_2-color-graph " />
+      <item itemvalue="Python.dr_perm-no-fix" />
+      <item itemvalue="Python.fast_perm-no-fix" />
       <item itemvalue="Python.inc_2-regular-graph " />
+      <item itemvalue="Python.inc_2-regular-graph  (1)" />
+      <item itemvalue="Python.dr_2-color-graph " />
+      <item itemvalue="Python.inc_2-color-graph -sc2" />
       <item itemvalue="Python.comparison_plotter" />
       <item itemvalue="Python.plotter" />
       <item itemvalue="Python.dr_performance" />
@@ -594,7 +703,9 @@
       <workItem from="1756784402780" duration="634000" />
       <workItem from="1757415329547" duration="5069000" />
       <workItem from="1757422966145" duration="599000" />
-      <workItem from="1757483561689" duration="1772000" />
+      <workItem from="1757483561689" duration="3795000" />
+      <workItem from="1757487966040" duration="10407000" />
+      <workItem from="1757511580894" duration="2589000" />
     </task>
     <task id="LOCAL-00001" summary="r mod k">
       <option name="closed" value="true" />
@@ -660,7 +771,15 @@
       <option name="project" value="LOCAL" />
       <updated>1757418561239</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="update convert_counting_formula">
+      <option name="closed" value="true" />
+      <created>1757485476258</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1757485476258</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -704,60 +823,26 @@
     <MESSAGE value="支持了unary mod" />
     <MESSAGE value="支持了unary eq" />
     <MESSAGE value="update" />
-    <option name="LAST_COMMIT_MESSAGE" value="update" />
+    <MESSAGE value="update convert_counting_formula" />
+    <option name="LAST_COMMIT_MESSAGE" value="update convert_counting_formula" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/modk/modk_performance.py</url>
-          <line>288</line>
-          <option name="timeStamp" value="70" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/AppData/Local/JetBrains/PyCharm2023.3/remote_sources/1888937610/517411235/baseline/performance/dr_performance.py</url>
-          <line>276</line>
-          <option name="timeStamp" value="73" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/AppData/Local/JetBrains/PyCharm2023.3/remote_sources/1888937610/517411235/wfomc/context/dr_context.py</url>
-          <line>137</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/AppData/Local/JetBrains/PyCharm2023.3/remote_sources/1888937610/517411235/wfomc/algo/DRWFOMC.py</url>
-          <line>25</line>
-          <option name="timeStamp" value="76" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/wfomc/algo/DRWFOMC.py</url>
-          <line>25</line>
-          <option name="timeStamp" value="77" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/AppData/Local/JetBrains/PyCharm2023.3/remote_sources/1888937610/517411235/wfomc/context/dr_context.py</url>
-          <line>488</line>
-          <option name="timeStamp" value="78" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/AppData/Local/JetBrains/PyCharm2023.3/remote_sources/1888937610/517411235/wfomc/context/dr_context.py</url>
-          <line>464</line>
-          <option name="timeStamp" value="79" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/baseline/check/plotter.py</url>
-          <line>10</line>
-          <option name="timeStamp" value="80" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/AppData/Local/JetBrains/PyCharm2023.3/remote_sources/1888937610/517411235/wfomc/context/wfomc_context.py</url>
-          <line>49</line>
-          <option name="timeStamp" value="81" />
+          <url>file://$PROJECT_DIR$/wfomc/context/wfomc_context.py</url>
+          <line>167</line>
+          <option name="timeStamp" value="102" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/wfomc/network/constraint.py</url>
-          <line>105</line>
-          <option name="timeStamp" value="86" />
+          <line>71</line>
+          <option name="timeStamp" value="104" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/wfomc/network/constraint.py</url>
+          <line>66</line>
+          <option name="timeStamp" value="105" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -778,6 +863,7 @@
     <SUITE FILE_PATH="coverage/WFOMC$dr_permutation_no_fix.coverage" NAME="dr_permutation-no-fix Coverage Results" MODIFIED="1752653931782" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$cnf_mc.coverage" NAME="cnf_mc Coverage Results" MODIFIED="1751976853585" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/check" />
     <SUITE FILE_PATH="coverage/WFOMC$cnf_2_regular_graph_.coverage" NAME="cnf_2-regular-graph  Coverage Results" MODIFIED="1752144394878" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+    <SUITE FILE_PATH="coverage/WFOMC$dr_perm_no_fix.coverage" NAME="dr_perm-no-fix Coverage Results" MODIFIED="1757511752239" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC2025711$dr_0mod2_regular_graph_.coverage" NAME="dr_0mod2-regular-graph  Coverage Results" MODIFIED="1752223085981" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$modk_performance__1_.coverage" NAME="modk_performance (1) Coverage Results" MODIFIED="1754746895694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modk" />
     <SUITE FILE_PATH="coverage/WFOMC$tmp1.coverage" NAME="tmp1 Coverage Results" MODIFIED="1754485073666" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tmp_test" />
@@ -793,18 +879,20 @@
     <SUITE FILE_PATH="coverage/WFOMC$fo2_to_cnf_converter.coverage" NAME="fo2_to_cnf_converter Coverage Results" MODIFIED="1753605820548" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/check" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_performance.coverage" NAME="dr_performance Coverage Results" MODIFIED="1754658106622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiment/baseline/performance" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_perm.coverage" NAME="dr_permutation-no-fix Coverage Results" MODIFIED="1752491435456" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
-    <SUITE FILE_PATH="coverage/WFOMC$dr_2_regular_graph.coverage" NAME="dr_2-regular-graph Coverage Results" MODIFIED="1757484965221" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+    <SUITE FILE_PATH="coverage/WFOMC$dr_2_regular_graph.coverage" NAME="dr_2-regular-graph Coverage Results" MODIFIED="1757504938987" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$cnf_unary.coverage" NAME="cnf_unary Coverage Results" MODIFIED="1752734829253" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_permutation_with_auxiliary_predicates_wfomcs.coverage" NAME="dr_permutation-with-auxiliary-predicates.wfomcs Coverage Results" MODIFIED="1752564927684" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$permutation_with_auxiliary_predicates_wfomcs_.coverage" NAME="permutation-with-auxiliary-predicates.wfomcs  Coverage Results" MODIFIED="1752559735016" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$test.coverage" NAME="test Coverage Results" MODIFIED="1751975675965" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/check" />
     <SUITE FILE_PATH="coverage/WFOMC$plot_kr_comparision.coverage" NAME="plot_kr_comparision Coverage Results" MODIFIED="1754571316656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modk" />
+    <SUITE FILE_PATH="coverage/WFOMC$inc_2_regular_graph___1_.coverage" NAME="inc_2-regular-graph  (1) Coverage Results" MODIFIED="1757504931191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_2_colored_graph_sc2_.coverage" NAME="dr_2-regular-graph Coverage Results" MODIFIED="1753372462954" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$myplot.coverage" NAME="myplot Coverage Results" MODIFIED="1753951895165" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/plot" />
     <SUITE FILE_PATH="coverage/WFOMC$fast_2_colored_graph.coverage" NAME="fast_2-colored-graph Coverage Results" MODIFIED="1753352775270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$inc_2_regular_graph_sc2.coverage" NAME="inc_2_regular_graph-sc2 Coverage Results" MODIFIED="1753359335223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$plot_nkr__1_.coverage" NAME="plot_nkr (1) Coverage Results" MODIFIED="1754573842764" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modk" />
     <SUITE FILE_PATH="coverage/WFOMC$wfomc_algorithm_verification.coverage" NAME="wfomc_algorithm_verification Coverage Results" MODIFIED="1753948762553" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/check" />
+    <SUITE FILE_PATH="coverage/WFOMC$inc_2_color_graph_.coverage" NAME="inc_2-color-graph  Coverage Results" MODIFIED="1757485428691" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1753883301729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tmp_test" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_unary.coverage" NAME="dr_unary Coverage Results" MODIFIED="1753864427641" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_permutation_no_fix_sc2.coverage" NAME="dr_permutation-no-fix-sc2 Coverage Results" MODIFIED="1752472871542" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
@@ -820,21 +908,21 @@
     <SUITE FILE_PATH="coverage/WFOMC$dr_3_colored_graph_.coverage" NAME="dr_3-colored-graph  Coverage Results" MODIFIED="1753346693380" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_0mod2_regular_graph_.coverage" NAME="dr_0mod2-regular-graph  Coverage Results" MODIFIED="1752477603574" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$test3.coverage" NAME="test3 Coverage Results" MODIFIED="1754653127540" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tmp_test" />
-    <SUITE FILE_PATH="coverage/WFOMC$inc_2_regular_graph_.coverage" NAME="inc_2-regular-graph  Coverage Results" MODIFIED="1757484988958" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+    <SUITE FILE_PATH="coverage/WFOMC$inc_2_regular_graph_.coverage" NAME="inc_2-regular-graph  Coverage Results" MODIFIED="1757504216894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$check_all.coverage" NAME="check_all Coverage Results" MODIFIED="1752739655287" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/check" />
     <SUITE FILE_PATH="coverage/WFOMC$incremental_dp_cc_standard_2_regular_graph_.coverage" NAME="incremental_dp_cc_permutation Coverage Results" MODIFIED="1752393358892" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_mod_and_k.coverage" NAME="dr_mod_and_k Coverage Results" MODIFIED="1751972899977" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_performance__1_.coverage" NAME="dr_performance (1) Coverage Results" MODIFIED="1756548681481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baseline/performance" />
-    <SUITE FILE_PATH="coverage/WFOMC$dr_BA.coverage" NAME="dr_BA Coverage Results" MODIFIED="1756559289598" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+    <SUITE FILE_PATH="coverage/WFOMC$dr_BA.coverage" NAME="dr_BA Coverage Results" MODIFIED="1757502478647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$plotter.coverage" NAME="plotter Coverage Results" MODIFIED="1756550496017" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/baseline/check" />
     <SUITE FILE_PATH="coverage/WFOMC$std_permutation_no_fix.coverage" NAME="std_permutation-no-fix Coverage Results" MODIFIED="1752491418952" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_function_no_fix_wfomcs.coverage" NAME="dr_function-no-fix.wfomcs Coverage Results" MODIFIED="1752490985494" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$std_unary.coverage" NAME="std_unary Coverage Results" MODIFIED="1752645448293" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$std_permutation_no_fix__1_.coverage" NAME="std_permutation Coverage Results" MODIFIED="1752400175373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
-    <SUITE FILE_PATH="coverage/WFOMC$dr_2_color_graph_.coverage" NAME="dr_2-color-graph  Coverage Results" MODIFIED="1757485399458" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+    <SUITE FILE_PATH="coverage/WFOMC$dr_2_color_graph_.coverage" NAME="dr_2-color-graph  Coverage Results" MODIFIED="1757504217011" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$cnf_permutation.coverage" NAME="cnf_permutation Coverage Results" MODIFIED="1752737031001" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$cnf_0mod2_regular_graph_sc2.coverage" NAME="cnf_0mod2-regular-graph-sc2 Coverage Results" MODIFIED="1753425896379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
-    <SUITE FILE_PATH="coverage/WFOMC$inc_BA_.coverage" NAME="inc_BA  Coverage Results" MODIFIED="1757416908436" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+    <SUITE FILE_PATH="coverage/WFOMC$inc_BA_.coverage" NAME="inc_BA  Coverage Results" MODIFIED="1757502602664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_permutation.coverage" NAME="dr_permutation Coverage Results" MODIFIED="1752668955007" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_0mod2.coverage" NAME="dr_0mod2 Coverage Results" MODIFIED="1757484899316" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_card_general.coverage" NAME="dr_card_general Coverage Results" MODIFIED="1752232988626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
@@ -846,6 +934,8 @@
     <SUITE FILE_PATH="coverage/WFOMC$incremental_dp_cc.coverage" NAME="incremental_dp_cc Coverage Results" MODIFIED="1752408834585" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_2_regular_graph_sc2_.coverage" NAME="dr_2-regular-graph-sc2  Coverage Results" MODIFIED="1753276366852" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$dr_le.coverage" NAME="dr_le Coverage Results" MODIFIED="1756559202408" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
+    <SUITE FILE_PATH="coverage/WFOMC$inc_perm_no_fix.coverage" NAME="fast_perm-no-fix Coverage Results" MODIFIED="1757506380913" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
     <SUITE FILE_PATH="coverage/WFOMC$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1754484579350" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tmp_test" />
+    <SUITE FILE_PATH="coverage/WFOMC$fast_perm_no_fix.coverage" NAME="fast_perm-no-fix Coverage Results" MODIFIED="1757511744582" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="D:\科研\RecursiveWFOMC_DFT\WorkSpace\WFOMC" />
   </component>
 </project>

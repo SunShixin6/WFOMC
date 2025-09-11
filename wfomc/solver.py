@@ -51,8 +51,9 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:
             res = recursive_wfomc(context)
         elif algo == Algo.DR:
             res = domain_recursive_wfomc(dr_context)
+            res = dr_context.decode_result(res)
 
-    if algo != Algo.DR:
+    if algo != Algo.DR: # 不是DR的用用一个context来decode
         res = context.decode_result(res)
     logger.info('WFOMC time: %s', t.elapsed)
     return res

@@ -86,7 +86,7 @@ def domain_recursive_wfomc(context: DRWFOMCContext) -> RingElement:
         ## ========== 主循环：遍历所有多项式配置 ==========
         for config in multinomial(n_cells, domain_size):
             ## --- 检查一元约束 ---
-            if any(context.check_unary_constraints(config, unary_mask)):  # 有一个约束不满足，就跳过这个配置
+            if any(context.check_unary_constraints(config, unary_mask)):  # 有一个约束不满足，就跳过这个配置。也就是只有满足了约束的情况，才会走下面的计算
                 continue
 
             ## 初始化配置数组并赋值

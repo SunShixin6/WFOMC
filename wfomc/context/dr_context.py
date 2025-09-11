@@ -3,11 +3,12 @@ from __future__ import annotations
 import hashlib
 from collections import defaultdict
 
+import math
 import numpy as np
 from logzero import logger
 from wfomc.fol.sc2 import SC2
 from wfomc.fol.utils import new_predicate, convert_counting_formula
-from wfomc.fol.syntax import AUXILIARY_PRED_NAME, X, Y, AtomicFormula, Const, Pred, QFFormula, top, a, b
+from wfomc.fol.syntax import AUXILIARY_PRED_NAME, X, Y, AtomicFormula, Const, Pred, QFFormula, top, a, b, Top
 from wfomc.network.constraint import CardinalityConstraint
 from wfomc.fol.syntax import *
 from wfomc.problems import WFOMCProblem
@@ -32,7 +33,7 @@ class DRWFOMCContext(object):
         self.domain: set[Const] = problem.domain
         self.sentence: SC2 = problem.sentence
         self.weights: dict[Pred, tuple[Rational, Rational]] = problem.weights
-        self.cardinality_constraint: CardinalityConstraint = problem.cardinality_constraint
+        self.cardinality_constraint: CardinalityConstraint = problem.cardinality_constraint # 这里是能够读取基数约束的，但是只不过后面没有使用，
         self.repeat_factor = 1
 
         logger.info('sentence: \n%s', self.sentence)
@@ -49,22 +50,22 @@ class DRWFOMCContext(object):
         else:
             self.leq_pred: Pred = None
 
-        self.uni_formula = []  # 全称量词公式
-        self.ext_preds = []  # 存在量词谓词列表
+        self.uni_formula: QuantifiedFormula = Top  # 全称量词公式
+        self.ext_preds: list[QuantifiedFormula] = []  # 存在量词谓词列表
 
         # 单双层
         # 每层是mod = <=
         # 单层，谓词是一元
         # 双层 谓词是二元
         ## 计数
-        self.cnt_preds = []  # 计数谓词列表
-        self.cnt_params = []  # 计数参数 k (int)
-        self.cnt_remainder = []  # 余数 r (int)
+        self.cnt_preds: list[QuantifiedFormula] = []  # 计数谓词列表
+        self.cnt_params: list[int] = []  # 计数参数 k (int)
+        self.cnt_remainder: list[int] = []  # 余数 r (int)
         ## unary
         self.mod_pred_index = []  # 模运算谓词索引
         self.exist_mod = False  # 是否存在模运算
         self.unary_mod_constraints = []  # 一元模约束 [(Pred, r, k), …]
-        self.unary_eq_constraints = []  # [(pred, k), ...]
+        self.unary_eq_constraints: list[tuple] = []  # [(pred, k), ...]
         self.unary_le_constraints = []  # [(pred, k_max), ...]
 
         ## <=
@@ -75,10 +76,10 @@ class DRWFOMCContext(object):
         self.comparator_handlers = {  # 比较器处理函数映射
             'mod': self._handle_mod,
             '=': self._handle_eq,
-            '<=': self._handle_le,  #
+            '<=': self._handle_le,
         }
 
-        self._preprocess()  # 预处理逻辑公式
+        self._build()  # 预处理逻辑公式
 
         self.c_type_shape = tuple()  # c类型形状
         self.build_c_type_shape()  # 构建c类型形状
@@ -91,7 +92,6 @@ class DRWFOMCContext(object):
         self.card_ccs = []
         self.card_vars = []
         self.build_cardinality_constraints()
-
 
     def stop_condition(self, last_target_c):
         """
@@ -135,12 +135,12 @@ class DRWFOMCContext(object):
         if isinstance(formula.quantified_formula, QuantifiedFormula):
             # 双层 ∀X (∃_{·} Y : ...)
             inner_formula = formula.quantified_formula
-            return ("double layer",
+            return ("binary",
                     inner_formula.quantified_formula,  # P(X)
                     inner_formula.quantifier_scope)  # scope of ∃_{·} Y
         else:
             # 单层 ∃_{·} X : ...
-            return ("single layer",
+            return ("unary",
                     formula.quantified_formula,  # P(X)
                     formula.quantifier_scope)  # scope of ∃_{·} X
 
@@ -157,7 +157,7 @@ class DRWFOMCContext(object):
         self.cnt_preds.append(aux_pred)  # 将辅助谓词添加到计数谓词列表
         return aux_pred
 
-    def _handle_mod(self, idx, inner_formula, qscope, param, _):  # 处理  ∃_{r mod k}
+    def _handle_mod(self, type, idx, inner_formula, qscope, param, _):  # 处理  ∃_{r mod k}
         """
         处理模运算量词 ∃_{r mod k}
         Args:
@@ -170,65 +170,65 @@ class DRWFOMCContext(object):
         r, k = param  # (r, k) 分解参数
 
         ## unary mod
-        if (isinstance(inner_formula, AtomicFormula)
+        if (type == "unary" and isinstance(inner_formula, AtomicFormula)
                 and inner_formula.pred.arity == 1
                 and inner_formula.args == (qscope.quantified_var,)):
             self.unary_mod_constraints.append((inner_formula.pred, r, k))  # 供 config 剪枝
             return  # 不再进入递归
+        elif type == "binary":
+            ## binary mod
+            self.exist_mod = True
+            self.mod_pred_index.append(idx)  # 记录模运算谓词索引
+            self.cnt_remainder.append(r)  # 记录余数
+            self.cnt_params.append(k)  # 记录模数
+            self._add_aux_equiv(inner_formula)  # 仍然引入二元 aux
 
-        ## binary mod
-        self.exist_mod = True
-        self.mod_pred_index.append(idx) # 记录模运算谓词索引
-        self.cnt_remainder.append(r) # 记录余数
-        self.cnt_params.append(k) # 记录模数
-        self._add_aux_equiv(inner_formula)  # 仍然引入二元 aux
-
-    def _handle_eq(self, idx, inner_formula, qscope, param, comparator):
+    def _handle_eq(self, type, idx, inner_formula, qscope, param, comparator):
         """
         处理等号量词 ∃_{=m}
         Args:
+            type: unary 还是 binary
             idx: 索引
-            layer: 层级
             inner_formula: 内部公式
             qscope: 量词作用域
             param: 参数 k
             comparator: 比较器
         """
         ## unary ∃_{=k} X  A(X)
-        if (isinstance(inner_formula, AtomicFormula)
+        if (type == "unary" and isinstance(inner_formula, AtomicFormula)
                 and inner_formula.pred.arity == 1
                 and inner_formula.args == (qscope.quantified_var,)):
             self.unary_eq_constraints.append((inner_formula.pred, param))  # 供 config 剪枝
             return  # 不进递归，不占 cnt_preds
-        ## biarny
-        self.cnt_remainder.append(None)  # 不需要余数
-        self.cnt_params.append(param)  # 直接添加参数k
-        aux_pred = self._add_aux_equiv(inner_formula)  # 添加辅助等价关系
+        elif type == "binary":
+            self.cnt_remainder.append(None)  # 不需要余数
+            self.cnt_params.append(param)  # 直接添加参数k
+            aux_pred = self._add_aux_equiv(inner_formula)  # 添加辅助等价关系
 
-    def _handle_le(self, idx, inner_formula, qscope, param, comparator):
+    def _handle_le(self, type, idx, inner_formula, qscope, param, comparator):
         """
         处理小于等于量词 ∃_{<=m}
         Args:
+            type: unary 还是 binary
             idx: 索引
-            layer: 层级
             inner_formula: 内部公式
             qscope: 量词作用域
             param: 参数 k
             comparator: 比较器
         """
-        if (isinstance(inner_formula, AtomicFormula)
+        if (type == "unary" and isinstance(inner_formula, AtomicFormula)
                 and inner_formula.pred.arity == 1
                 and inner_formula.args == (qscope.quantified_var,)):
             self.unary_le_constraints.append((inner_formula.pred, param))  # 供 config 剪枝
             return  # 不进递归，不占 cnt_preds
+        elif type == "binary":
+            self.cnt_remainder.append(None)  # 不需要余数
+            self.cnt_params.append(param)  # 直接添加参数k
+            aux_pred = self._add_aux_equiv(inner_formula)
+            self.le_pred.append(aux_pred)  # 只有 <= 才需要额外标记
+            self.exist_le = True  # 标记存在 <= 量词
 
-        self.cnt_remainder.append(None)  # 不需要余数
-        self.cnt_params.append(param)  # 直接添加参数k
-        aux_pred = self._add_aux_equiv(inner_formula)
-        self.le_pred.append(aux_pred)  # 只有 <= 才需要额外标记
-        self.exist_le = True  # 标记存在 <= 量词
-
-    def _preprocess(self):
+    def _build(self):
         """
         预处理逻辑公式，将其转换为可处理的无量词形式，并引入辅助谓词
         """
@@ -240,27 +240,53 @@ class DRWFOMCContext(object):
         cnt_formulas = self.sentence.cnt_formulas  # 计数量词公式
 
         ## 处理存在公式
-        for formula in ext_formulas:
-            # NOTE: assume all existential formulas are of the form VxEy
-            qf_formula = formula.quantified_formula.quantified_formula
-            aux_pred = new_predicate(2, AUXILIARY_PRED_NAME)
-            self.uni_formula = self.uni_formula & qf_formula.equivalent(aux_pred(X, Y))
-            self.ext_preds.append(aux_pred)
+        for formula in ext_formulas: # 这里我们在处理计数量词之前，处理存在量词，来实现UFO2。而把计数量词的处理和这部分分开，也就是对应于论文
+            self.uni_formula = self.uni_formula & self._skolemize_one_formula(formula)
 
         ## 处理计数公式
         for idx, formula in enumerate(cnt_formulas):
-            _, inner_formula, qscope = self._split_layer(formula)  # 因为可能是双层或单层，所以需要拆分
+            type, inner_formula, qscope = self._split_layer(formula)  # 因为可能是双层或单层，所以需要拆分
             comparator = qscope.comparator  # 'mod' / '=' / '<=' / ...
             cnt_param_raw = qscope.count_param  # (r,k) 或 int
 
             ## 根据 comparator 分派到对应的 handler
             idx = len(self.cnt_preds)  # 用当前 cnt_preds 长度算下标
             # 也就是说，cnt_formulas 和 cnt_preds的长度是不同的。unary mod不会添加进cnt_preds中。为了跳过unary mod,不采用手动累加 idx = idx + 1。是因为idx 必须始终与 cnt_preds 的当前长度保持同步，保持新谓词下标依然连续、正确，
-            self.comparator_handlers[comparator](idx, inner_formula, qscope, cnt_param_raw, comparator)
+            self.comparator_handlers[comparator](type, idx, inner_formula, qscope, cnt_param_raw, comparator)
 
-        self.all_preds = self.ext_preds + self.cnt_preds # 收集全部谓词
-        self._pred2idx = {pred: i for i, pred in enumerate(self.all_preds)} # 构建一次性的“谓词 → 索引”映射（O(n)）
-        self.le_index = [self.all_preds.index(pred) for pred in self.le_pred] # 利用映射拿 <= 量词对应的索引
+        self.all_preds = self.ext_preds + self.cnt_preds  # 收集全部谓词
+        self._pred2idx = {pred: i for i, pred in enumerate(self.all_preds)}  # 构建一次性的“谓词 → 索引”映射（O(n)）
+        self.le_index = [self.all_preds.index(pred) for pred in self.le_pred]  # 利用映射拿 <= 量词对应的索引
+
+    def _skolemize_one_formula(self, formula: QuantifiedFormula) -> QFFormula:
+        """
+        处理形如 forall X exists Y: f(X,Y) 或 exists X: f(X) 的公式
+        这里的处理和WFOMCContext中相同
+        """
+        quantified_formula = formula.quantified_formula # 获取最外层量词内部的公式
+        quantifier_num = 1 # 初始化量词层数为1 (至少有一层，即 exists X)
+        while (not isinstance(quantified_formula, QFFormula)): # 通过循环深入，处理嵌套量词（如 forall X exists Y），直到找到最内层的无量词公式
+            quantified_formula = quantified_formula.quantified_formula
+            quantifier_num += 1
+        # --- 步骤2: 准备工作，并处理复杂的内核公式 ---
+        skolem_formula: QFFormula = top
+        ext_formula = quantified_formula # ext_formula 指的是存在量词内核的无量词公式部分，例如 f(X,Y)
+        if not isinstance(ext_formula, AtomicFormula): # 如果内核不是一个简单的原子公式 (例如，它是 P(X,Y) & Q(X) 这样的组合)
+            aux_pred = new_predicate(quantifier_num, AUXILIARY_PRED_NAME) # 创建一个新的辅助谓词 (例如 @aux) 来代表这个复杂的内核
+            aux_atom = aux_pred(X, Y) if quantifier_num == 2 else aux_pred(X) # 根据量词层数创建对应的辅助原子 (例如 @aux(X,Y) 或 @aux(X))
+            skolem_formula = skolem_formula & (ext_formula.equivalent(aux_atom)) # 在最终结果中加入一条等价公理，确保逻辑不变 (例如 f(X,Y) <-> @aux(X,Y))
+            ext_formula = aux_atom # 后续步骤将直接处理这个简单的辅助原子，而不是复杂的内核
+        # --- 步骤3: 根据量词层数创建对应的斯科莱姆谓词 ---
+        if quantifier_num == 2: # 如果是双层量词 forall X exists Y: ...
+            skolem_pred = new_predicate(1, SKOLEM_PRED_NAME) # 创建一个新的一元斯科莱姆谓词 (例如 @skolem)，它扮演了斯科莱姆函数的角色
+            skolem_atom = skolem_pred(X) # 创建对应的斯科莱姆原子，例如 @skolem(X)
+        elif quantifier_num == 1:
+            skolem_pred = new_predicate(0, SKOLEM_PRED_NAME) # 创建一个新的零元斯科莱姆谓词，它扮演了斯科莱姆常量的角色
+            skolem_atom = skolem_pred() # 创建对应的斯科莱姆原子，例如 @skolem()
+
+        skolem_formula = skolem_formula & (skolem_atom | ~ext_formula) # 将核心斯科莱姆公理 (skolem_atom ∨ ¬ext_formula) 添加到结果中
+        self.weights[skolem_pred] = (Rational(1, 1), Rational(-1, 1)) # 为新创建的斯科莱姆谓词设置一个特殊的 (1, -1) 权重。
+        return skolem_formula
 
     def build_c_type_shape(self):
         """
@@ -294,18 +320,22 @@ class DRWFOMCContext(object):
             self.binary_evidence.append(frozenset(sum(atoms, start=())))  # 添加到二元证据列表
 
     def build_cardinality_constraints(self):  # this code is under construction
+        self.cardinality_constraint.build()
         if self.contain_cardinality_constraint():
-            pred2var = dict((pred, var) for var, pred in self.cardinality_constraint.var2pred.items())
-            constraints = self.cardinality_constraint.constraints
-            for constraint in constraints:
-                coeffs, comp, param = constraint
-                assert len(coeffs) == 1 and comp == '='
-                param = int(param)
-                pred, coef = next(iter(coeffs.items()))
-                self.card_preds.append(pred)
-                assert coef == 1
-                self.card_ccs.append(param)
-                # self.card_vars.append(pred2var[pred])
+            self.weights.update(
+                self.cardinality_constraint.transform_weighting(
+                    self.get_weight,
+                )
+            )
+
+    def decode_result(self, res: RingElement):
+        if not self.contain_cardinality_constraint():
+            res = res / self.repeat_factor
+        else:
+            res = self.cardinality_constraint.decode_poly(res) / self.repeat_factor
+        if self.leq_pred is not None:
+            res *= Rational(math.factorial(len(self.domain)), 1)
+        return res
 
     def contain_cardinality_constraint(self) -> bool:
         """
@@ -494,11 +524,10 @@ class DRWFOMCContext(object):
             return self.weights[pred]
         return default, default
 
-    def check_unary_constraints(self, config, mask) -> tuple[bool,bool, bool]:
+    def check_unary_constraints(self, config, mask) -> tuple[bool, bool, bool]:
         return self.check_unary_mod_constraints(config, mask[0]), self.check_unary_eq_constraints(config, mask[1]), self.check_unary_le_constraints(config, mask[2])
 
-
-    def check_unary_mod_constraints(self, config, unary_mod_mask)-> bool:
+    def check_unary_mod_constraints(self, config, unary_mod_mask) -> bool:
         for mask, r_mod, k_mod in unary_mod_mask:  # 遍历每个约束
             config_total_unary_constraint = (mask @ np.fromiter(config, dtype=np.int32))  # config 是当前 1-type 配置，元素是“第 i 个 cell 放了多少个元素”。mask @ config 就是向量点积 —— 自动算出 整个结构里满足 pred 的元素总数
             if config_total_unary_constraint % k_mod != r_mod:
@@ -514,12 +543,13 @@ class DRWFOMCContext(object):
     def check_unary_le_constraints(self, config, unary_le_masks) -> bool:
         vec = np.fromiter(config, dtype=np.int32)
         for mask, k_max in unary_le_masks:
-            if (mask @ vec) > k_max: # count > k ⇒ 违反
+            if (mask @ vec) > k_max:  # count > k ⇒ 违反
                 return True
         return False
 
     def build_unary_mask(self, cells) -> tuple[list, list, list]:
-        return self.build_unary_mod_mask(cells),self.build_unary_eq_mask(cells), self.build_unary_le_mask(cells)
+        return self.build_unary_mod_mask(cells), self.build_unary_eq_mask(cells), self.build_unary_le_mask(cells)
+
     def build_unary_le_mask(self, cells) -> list:
         n_cells = len(cells)
         masks = []
@@ -536,10 +566,10 @@ class DRWFOMCContext(object):
         # 一阶 1-type cell 是否把某个一元谓词 pred 标成 True”转换成一个长度为 n_cells 的 0‒1 向量mask。比如，cells = [B(X)^LEQ(X,X)^~@aux0(X,X)^~A(X), @aux0(X,X)^A(X)^LEQ(X,X)^~B(X)], 那么unary_mod_mask = [([0 1], 0, 2)]
         """
         n_cells = len(cells)
-        masks = [] # 每个约束对应一个 mask 和 (r,k) [(np.int8[n_cells], r, k), …]
+        masks = []  # 每个约束对应一个 mask 和 (r,k) [(np.int8[n_cells], r, k), …]
         for pred, r, k in self.unary_mod_constraints:
             mask = np.fromiter(
-                (1 if cell.is_positive(pred) else 0 for cell in cells), # cell 是否满足该一元谓词
+                (1 if cell.is_positive(pred) else 0 for cell in cells),  # cell 是否满足该一元谓词
                 dtype=np.int8,
                 count=n_cells
             )
@@ -607,8 +637,6 @@ class ConfigUpdater:
         return F  # 返回最终的状态转移权重字典
 
 
-
-
 class HashableArrayWrapper(object):
     def __init__(self, input_array: np.ndarray):
         self.array = input_array.astype(np.uint8, copy=False)
@@ -627,5 +655,3 @@ class HashableArrayWrapper(object):
 
     def __repr__(self):
         return f"HashableArrayWrapper({self.array})"
-
-
