@@ -97,9 +97,7 @@ def exclusive(preds: list[Pred]) -> QuantifiedFormula:
 def convert_counting_formula(formula: QuantifiedFormula, domain: set) -> \
         tuple[QFFormula, list[QuantifiedFormula], tuple, int]:
     """
-    Translates a counting formula to a universally quantified formula,
-    existentially quantified formulas, a cardinality constraint, and a repeat factor.
-    This new version handles both unary (single layer) and binary (double layer) counting formulas.
+    这个函数负责实现Beat论文中的引理 4，也就是将 ∀X ∃=k Y: R(X,Y) 分解。分解过程中，它会生成 k 个独立的、需要被满足的存在量词公式 ∀X ∃Y: fᵢ(X,Y)。
     """
 
     inner_formula = formula.quantified_formula

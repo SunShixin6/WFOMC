@@ -14,7 +14,7 @@ from wfomc.problems import WFOMCProblem
 from wfomc.algo import Algo, standard_wfomc, fast_wfomc, incremental_wfomc, recursive_wfomc
 
 from wfomc.utils import MultinomialCoefficients, Rational, round_rational
-from wfomc.context import WFOMCContext
+from wfomc.context import WFOMCContext, WFOMCContextNewEncoding
 from wfomc.parser import parse_input
 from wfomc.fol.syntax import Pred, Const
 
@@ -34,9 +34,10 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:
     logger.info(f'Invoke WFOMC with {algo} algorithm')
 
     if algo == Algo.DR:
-        dr_context = DRWFOMCContext(problem)
+        context = DRWFOMCContext(problem) # our INCREMENTALWFOMC3
     else:
-        context = WFOMCContext(problem)
+        # context = WFOMCContext(problem) # 旧的encoding
+        context = WFOMCContextNewEncoding(problem) # new encoding form 论文《Complexity of Weighted First-Order Model Counting in theTwo-Variable Fragment with Counting Quantifiers:A Bound to Beat》
     res: Rational = Rational(0, 1)
     with Timer() as t:
         if algo == Algo.STANDARD:
@@ -50,11 +51,8 @@ def wfomc(problem: WFOMCProblem, algo: Algo = Algo.STANDARD) -> Rational:
         elif algo == Algo.RECURSIVE:
             res = recursive_wfomc(context)
         elif algo == Algo.DR:
-            res = domain_recursive_wfomc(dr_context)
-            res = dr_context.decode_result(res)
-
-    if algo != Algo.DR: # 不是DR的用用一个context来decode
-        res = context.decode_result(res)
+            res = domain_recursive_wfomc(context)
+    res = context.decode_result(res)
     logger.info('WFOMC time: %s', t.elapsed)
     return res
 

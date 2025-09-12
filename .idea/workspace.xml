@@ -5,14 +5,89 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0920a5a7-ce94-4fae-8031-2a797d4af140" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/3-regular-graph-sc2.wfomcs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wfomc/context/new_context.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/github-actions-demo.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/github-actions-demo.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/python-app.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/python-app.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/WFOMC.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/shixi.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/easycode.ignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/easycode/codebase-v2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/dr_unary.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/incremental_wfomc.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/0mod2-regular-graph-sc2.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/0mod2-regular-graph-sc2.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/2-colored-graph.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/2-colored-graph.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/2-regular-graph-sc2.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/2-regular-graph-sc2.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/2-regular-graph.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/2-regular-graph.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/3-colored-graph.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/3-colored-graph.wfomcs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/BA.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/BA.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/deskmate.mln" beforeDir="false" afterPath="$PROJECT_DIR$/models/deskmate.mln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/employment.mln" beforeDir="false" afterPath="$PROJECT_DIR$/models/employment.mln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/existential.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/existential.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/friends-smokes.mln" beforeDir="false" afterPath="$PROJECT_DIR$/models/friends-smokes.mln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/friends-smokes.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/friends-smokes.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/function-no-fix-sc2.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/function-no-fix-sc2.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/function-no-fix.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/function-no-fix.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/linear_order/head-middle-tail.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/linear_order/head-middle-tail.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/linear_order/linear_order_perm.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/linear_order/linear_order_perm.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/max2-regular-graph.wfomc" beforeDir="false" afterPath="$PROJECT_DIR$/models/max2-regular-graph.wfomc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/mod_unary.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/mod_unary.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/molecule.mln" beforeDir="false" afterPath="$PROJECT_DIR$/models/molecule.mln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/nonisolated_graph.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/nonisolated_graph.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/partition.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/partition.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/permutation-no-fix-sc2.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/permutation-no-fix-sc2.wfomcs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/permutation-no-fix.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/permutation-no-fix.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/permutation.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/permutation.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/test_mod_and_k_expamle.wfomcs" beforeDir="false" afterPath="$PROJECT_DIR$/models/test_mod_and_k_expamle.wfomcs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/recursive_wfomc.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/wfomc_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/wfomc_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wfomc/algo/DRWFOMC.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/algo/DRWFOMC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/algo/DRWFOMC_bak.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/algo/DRWFOMC_bak.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/algo/FastWFOMC.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/algo/FastWFOMC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/algo/RecursiveWFOMC.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/algo/RecursiveWFOMC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/algo/StandardWFOMC.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/algo/StandardWFOMC.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/algo/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/algo/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/cell_graph/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/cell_graph/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/cell_graph/cell_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/cell_graph/cell_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/cell_graph/components.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/cell_graph/components.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/cell_graph/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/cell_graph/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/context/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/context/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wfomc/context/dr_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/context/dr_context.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wfomc/context/wfomc_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/context/wfomc_context.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/count_distribution.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/count_distribution.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/fol/boolean_algebra.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/fol/boolean_algebra.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/fol/sc2.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/fol/sc2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wfomc/fol/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/fol/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/network/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/network/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/cardinality_constraints_grammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/cardinality_constraints_grammar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/cardinality_constraints_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/cardinality_constraints_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/fol_grammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/fol_grammar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/fol_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/fol_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/mln_grammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/mln_grammar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/mln_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/mln_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/wfomcs_grammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/wfomcs_grammar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/parser/wfomcs_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/parser/wfomcs_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/problems.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/problems.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wfomc/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/solver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/utils/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/utils/multinomial.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/utils/multinomial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/utils/polynomial.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/utils/polynomial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wfomc/utils/third_typing.py" beforeDir="false" afterPath="$PROJECT_DIR$/wfomc/utils/third_typing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,7 +252,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "web.server",
+    "settings.editor.selected.configurable": "preferences.fileTypes",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -705,7 +780,8 @@
       <workItem from="1757422966145" duration="599000" />
       <workItem from="1757483561689" duration="3795000" />
       <workItem from="1757487966040" duration="10407000" />
-      <workItem from="1757511580894" duration="2589000" />
+      <workItem from="1757511580894" duration="3172000" />
+      <workItem from="1757565714640" duration="5435000" />
     </task>
     <task id="LOCAL-00001" summary="r mod k">
       <option name="closed" value="true" />
@@ -829,11 +905,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/wfomc/context/wfomc_context.py</url>
-          <line>167</line>
-          <option name="timeStamp" value="102" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/wfomc/network/constraint.py</url>
           <line>71</line>

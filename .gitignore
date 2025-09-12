@@ -8,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-baseline/
+**/results*/
 modk/
 plot/
 tmp_test/

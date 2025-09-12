@@ -1,0 +1,6 @@
+\forall X: (~perm(X, X)) &
+\forall X: (\exists Y: (perm(X,Y))) &
+\forall X: (\exists Y: (perm(Y,X)))
+
+domain = 6
+|perm| = 6

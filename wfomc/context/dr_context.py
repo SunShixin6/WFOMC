@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import hashlib
 from collections import defaultdict
 
@@ -30,6 +31,7 @@ class DRWFOMCContext(object):
             problem (WFOMCProblem): WFOMC问题实例
         """
         ## 域、句子、权重和基数约束
+        self.problem = deepcopy(problem)
         self.domain: set[Const] = problem.domain
         self.sentence: SC2 = problem.sentence
         self.weights: dict[Pred, tuple[Rational, Rational]] = problem.weights
@@ -120,17 +122,9 @@ class DRWFOMCContext(object):
         else:
             return all(i == 0 for i in last_target_c[1:])
 
-    def _split_layer(self, formula):
+    def _extract_formula(self, formula):
         """
-        把计数公式拆成 (layer, inner_formula, qscope) 三元组
-        layer ∈ {"Universal_Counting", "Counting"}
-        inner_formula 一定是 P(X) 那一层
-
-        Args:
-            formula: 要拆分的公式
-
-        Returns:
-            tuple: (layer类型, 内部公式, 量词作用域)
+        提取计数量词公式的类型、内部公式和量词作用域
         """
         if isinstance(formula.quantified_formula, QuantifiedFormula):
             # 双层 ∀X (∃_{·} Y : ...)
@@ -170,6 +164,7 @@ class DRWFOMCContext(object):
         r, k = param  # (r, k) 分解参数
 
         ## unary mod
+        # unary is under construction
         if (type == "unary" and isinstance(inner_formula, AtomicFormula)
                 and inner_formula.pred.arity == 1
                 and inner_formula.args == (qscope.quantified_var,)):
@@ -216,9 +211,10 @@ class DRWFOMCContext(object):
             param: 参数 k
             comparator: 比较器
         """
+        # unary is under construction
         if (type == "unary" and isinstance(inner_formula, AtomicFormula)
                 and inner_formula.pred.arity == 1
-                and inner_formula.args == (qscope.quantified_var,)):
+                and inner_formula.args == (qscope.quantified_var,)): 
             self.unary_le_constraints.append((inner_formula.pred, param))  # 供 config 剪枝
             return  # 不进递归，不占 cnt_preds
         elif type == "binary":
@@ -245,7 +241,7 @@ class DRWFOMCContext(object):
 
         ## 处理计数公式
         for idx, formula in enumerate(cnt_formulas):
-            type, inner_formula, qscope = self._split_layer(formula)  # 因为可能是双层或单层，所以需要拆分
+            type, inner_formula, qscope = self._extract_formula(formula)  # 因为可能是双层或单层，所以需要拆分
             comparator = qscope.comparator  # 'mod' / '=' / '<=' / ...
             cnt_param_raw = qscope.count_param  # (r,k) 或 int
 
@@ -320,8 +316,8 @@ class DRWFOMCContext(object):
             self.binary_evidence.append(frozenset(sum(atoms, start=())))  # 添加到二元证据列表
 
     def build_cardinality_constraints(self):  # this code is under construction
-        self.cardinality_constraint.build()
         if self.contain_cardinality_constraint():
+            self.cardinality_constraint.build()
             self.weights.update(
                 self.cardinality_constraint.transform_weighting(
                     self.get_weight,
@@ -346,6 +342,15 @@ class DRWFOMCContext(object):
         """
         return self.cardinality_constraint is not None and \
             not self.cardinality_constraint.empty()
+
+    def contain_linear_order_axiom(self) -> bool:
+        """
+        判断是否包含线性序公理
+
+        Returns:
+            bool: 是否包含线性序公理
+        """
+        return self.problem.contain_linear_order_axiom()
 
     def build_t_updates(self, r, n_cells, domain_size):
         """
@@ -411,25 +416,15 @@ class DRWFOMCContext(object):
                                         # 举个例子，假设k=3（模3运算）：
                                         # 如果当前值是0，减1后变成-1，根据模运算规则，-1 ≡ 2 (mod 3)，所以变成2
                                         # 如果当前值是5，减1后变成4，4 % 3 = 1，所以变成1
-                                        if t1_new[index] == -1:
-                                            t1_new[index] = k_i - 1
-                                        else:
-                                            t1_new[index] %= k_i
-                                        if t2_new[index] == -1:
-                                            t2_new[index] = k_i - 1
-                                        else:
-                                            t2_new[index] %= k_i
-                                    else:
-                                        # =k：出现负数就是非法，直接跳过这一条转移
-                                        if t1_new[index] < 0 or t2_new[index] < 0:
-                                            continue
-                            else:  # 只有普通计数量化器 ∃=k (无 mod-k): 负数是无效的
-                                if any(
-                                        t1_new[len(self.ext_preds) + p] < 0 or
-                                        t2_new[len(self.ext_preds) + p] < 0
-                                        for p in range(len(self.cnt_params))
-                                ):
-                                    continue
+                                        t1_new[index] %= k_i
+                                        t2_new[index] %= k_i
+
+                            if any(
+                                    t1_new[len(self.ext_preds) + p] < 0 or
+                                    t2_new[len(self.ext_preds) + p] < 0
+                                    for p in range(len(self.cnt_params))
+                            ):
+                                continue
 
                             # 修正布尔状态（确保非负）
                             for idx in range(
@@ -477,9 +472,9 @@ class DRWFOMCContext(object):
             ## 存在谓词
             for pred in self.ext_preds:  # 对存在谓词 (self.ext_preds)，存储 1 表示正，0 表示负
                 if cells[i].is_positive(pred):  # 如果当前单元格中该谓词为正
-                    t.append(1)  # 添加状态1
+                    t.append(0)  # 添加状态1
                 else:
-                    t.append(0)  # 添加状态0
+                    t.append(1)  # 添加状态0
             ## 计数谓词
             for idx, (pred, param) in enumerate(zip(self.cnt_preds, self.cnt_params)):
                 if cells[i].is_positive(pred):  # 如果当前单元格中该计数谓词为正
