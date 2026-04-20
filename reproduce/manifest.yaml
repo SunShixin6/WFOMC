@@ -1,0 +1,279 @@
+manifest_version: "1.0"
+name: "WFOMC Reproducibility Manifest"
+generated_on: "2026-04-20"
+repo_root: "."
+
+preflight:
+  python: ">=3.11"
+  install:
+    - "uv sync"
+  required_virtualenv: ".venv"
+  required_working_directory: "repository root"
+
+external_counters:
+  resolution_order:
+    - "Environment variable"
+    - "Command in PATH"
+  variables:
+    GANAK_BIN:
+      default_command: "ganak"
+      used_by:
+        - "reproduce.correctness.main (when algorithm=ganak)"
+        - "reproduce.correctness.odd_degree.main (when algorithm=ganak)"
+        - "reproduce.performance.odd_degree.main (when algorithm=ganak)"
+        - "reproduce/OEISsequence/ganak_odd_degree.py"
+    APPROXMC_BIN:
+      default_command: "approxmc"
+      used_by:
+        - "reproduce.correctness.main (when algorithm=approxmc)"
+        - "reproduce.correctness.odd_degree.main (when algorithm=approxmc)"
+        - "reproduce.performance.odd_degree.main (when algorithm=approxmc)"
+        - "reproduce/OEISsequence/ganak_odd_degree.py"
+
+orchestration:
+  run_all:
+    script: "reproduce/run_all.sh"
+    command: "bash reproduce/run_all.sh"
+    smoke_command: "bash reproduce/run_all.sh --smoke"
+    ordered_steps:
+      - "reproduce.correctness.main"
+      - "reproduce.correctness.odd_degree.main"
+      - "reproduce.performance.main"
+      - "reproduce.performance.odd_degree.main"
+      - "reproduce/OEISsequence/run_ganak_odd_degree.sh"
+    smoke_activation:
+      env_var: "REPRO_SMOKE"
+      env_value: "1"
+    cli_arg_passthrough:
+      module_args_forwarded_to:
+        - "reproduce.correctness.main"
+        - "reproduce.correctness.odd_degree.main"
+        - "reproduce.performance.odd_degree.main"
+      module_args_not_forwarded_to:
+        - "reproduce.performance.main"
+      oeis_only_args:
+        - "--ganak-path"
+        - "--approxmc-path"
+        - "--max-n"
+
+smoke_profile:
+  purpose: "Quick reviewer sanity run without editing benchmark source files"
+  implementation: "Runtime config overrides in main entry points"
+  overrides:
+    correctness_main:
+      domain_sizes_per_group: "first 2"
+      algorithms: [incremental3]
+      timeout_seconds_cap: 120
+    correctness_odd_degree:
+      algorithms: [incremental3]
+      timeout_seconds_cap: 120
+      sweeps:
+        vary_n:
+          domain_sizes: "first 3"
+          m_values: "first 1"
+          k_values_undirected: "first 1"
+        vary_k:
+          domain_sizes: "first 1"
+          m_values: "first 1"
+          k_values_undirected: "first 3"
+        vary_m:
+          domain_sizes: "first 1"
+          m_values: "first 2"
+          k_values_undirected: "first 1"
+    performance_main:
+      domain_sizes_per_group: "first 2"
+      models_per_group: "all"
+      algorithms: [incremental3]
+      timeout_seconds_cap: 120
+    performance_odd_degree:
+      domain_sizes: "first 2"
+      m_values: "all"
+      algorithms: [incremental3]
+      timeout_seconds_cap: 120
+    oeis_table2:
+      max_n: 4
+
+workflows:
+  correctness_main:
+    entry_module: "reproduce.correctness.main"
+    command: "PYTHONPATH=src:. python -m reproduce.correctness.main"
+    helper_script: "bash reproduce/correctness/run_correctness.sh"
+    defaults:
+      timeout_seconds: 10000
+      epsilon: 0.05
+      delta: 0.1
+      flush_every: 1
+    benchmark_groups:
+      - name: "0mod2-regular-graph"
+        domain_sizes: "2..8 step 1"
+        algorithms: [incremental3, ganak, approxmc]
+        models: ["0mod2-regular-graph.wfomcs"]
+      - name: "1mod2-regular-graph"
+        domain_sizes: "2..8 step 1"
+        algorithms: [incremental3, ganak, approxmc]
+        models: ["1mod2-regular-graph.wfomcs"]
+      - name: "2mod4-regular-graph"
+        domain_sizes: "3..8 step 1"
+        algorithms: [incremental3, ganak, approxmc]
+        models: ["2mod4-regular-graph.wfomcs"]
+      - name: "2-regular-graph"
+        domain_sizes: "3..8 step 1"
+        algorithms: [incremental3, ganak, approxmc]
+        models: ["2-regular-graph-sc2.wfomcs"]
+      - name: "3-regular-graph"
+        domain_sizes: "4..8 step 1"
+        algorithms: [incremental3, ganak, approxmc]
+        models: ["3-regular-graph.wfomcs"]
+      - name: "4-regular-graph"
+        domain_sizes: "5..8 step 1"
+        algorithms: [incremental3, ganak, approxmc]
+        models: ["4-regular-graph.wfomcs"]
+    outputs:
+      csv_root: "reproduce/correctness/correctness_results/raw_data/results_<timestamp>/"
+      csv_pattern: "reproduce/correctness/correctness_results/raw_data/results_<timestamp>/<group>/<model>/<model>.csv"
+      cnf_cache_root: "reproduce/correctness/correctness_results/raw_data/cnf/<model_stem>/"
+      figures_full: "reproduce/correctness/correctness_results/AppendixB.1/"
+      figures_publish: "reproduce/results/AppendixB.1/"
+
+  correctness_odd_degree:
+    entry_module: "reproduce.correctness.odd_degree.main"
+    command: "PYTHONPATH=src:. python -m reproduce.correctness.odd_degree.main"
+    helper_script: "bash reproduce/correctness/odd_degree/run_odd_degree.sh"
+    defaults:
+      timeout_seconds: 10000
+      epsilon: 0.05
+      delta: 0.1
+      flush_every: 1
+      algorithms: [incremental3, ganak, approxmc]
+      sweeps:
+        vary_n:
+          domain_sizes: "2..8"
+          m_values: [2]
+          k_values_undirected: [1]
+        vary_k:
+          domain_sizes: [5]
+          m_values: [2]
+          k_values_undirected: "1..9"
+        vary_m:
+          domain_sizes: [8]
+          m_values: [0, 2, 4, 6]
+          k_values_undirected: [3]
+    outputs:
+      csv_root: "reproduce/correctness/correctness_results/raw_data/odd_degree/results_<timestamp>/"
+      csv_pattern: "reproduce/correctness/correctness_results/raw_data/odd_degree/results_<timestamp>/<sweep>/m-odd-degree-graph-sc2/*.csv"
+      cnf_cache_root: "reproduce/correctness/correctness_results/raw_data/cnf/odd_degree/m-odd-degree-graph-sc2/"
+      figures_full: "reproduce/correctness/correctness_results/AppendixB.1/"
+      figures_publish: "reproduce/results/AppendixB.1/"
+
+  performance_main:
+    entry_module: "reproduce.performance.main"
+    command: "PYTHONPATH=src:. python -m reproduce.performance.main"
+    helper_script: "bash reproduce/performance/run_performance.sh --main"
+    defaults:
+      timeout_seconds: 10000
+      flush_every: 1
+    benchmark_groups:
+      - name: "regular-graphs"
+        domain_sizes: "2..99 step 3"
+        algorithms: [recursive, fast, incremental3]
+        models:
+          - "3-regular-graph.wfomcs"
+          - "4-regular-graph.wfomcs"
+          - "5-regular-graph.wfomcs"
+      - name: "colored-graphs"
+        domain_sizes: "2..99 step 3"
+        algorithms: [recursive, fast, incremental3]
+        models:
+          - "3-regular-2-colored-graph.wfomcs"
+          - "4-regular-2-colored-graph.wfomcs"
+          - "5-regular-2-colored-graph.wfomcs"
+      - name: "3-regular-3-colored-graph"
+        domain_sizes: "2..39 step 1"
+        algorithms: [recursive, fast, incremental3]
+        models: ["3-regular-3-colored-graph.wfomcs"]
+      - name: "3-regular-4-colored-graph"
+        domain_sizes: "2..29 step 1"
+        algorithms: [recursive, fast, incremental3]
+        models: ["3-regular-4-colored-graph.wfomcs"]
+      - name: "4-regular-3-colored-graph"
+        domain_sizes: "2..39 step 1"
+        algorithms: [fast, incremental3, recursive]
+        models: ["4-regular-3-colored-graph.wfomcs"]
+      - name: "directed-graphs"
+        domain_sizes: "2..49 step 3"
+        algorithms: [fast, incremental3, recursive]
+        models:
+          - "2-regular-directed-graph.wfomcs"
+          - "3-regular-directed-graph.wfomcs"
+      - name: "BA"
+        domain_sizes: "2..99 step 3"
+        algorithms: [recursive, incremental3]
+        models:
+          - "BA_CC.wfomcs"
+          - "BA.wfomcs"
+      - name: "modk-regular-graphs"
+        domain_sizes: "2..38 step 2"
+        algorithms: [recursive, fast, incremental3]
+        models:
+          - "0mod2-regular-graph.wfomcs"
+          - "1mod2-regular-graph.wfomcs"
+          - "2mod4-regular-graph-sc2.wfomcs"
+    outputs:
+      csv_root: "reproduce/performance/performance_results/raw_data/results_<timestamp>/"
+      csv_pattern: "reproduce/performance/performance_results/raw_data/results_<timestamp>/<group>/<model>/<model>.csv"
+      figures_full_section6: "reproduce/performance/performance_results/Section6/"
+      figures_full_appendix_b2: "reproduce/performance/performance_results/AppendixB.2/"
+      figures_publish_section6: "reproduce/results/Section6/"
+      figures_publish_appendix_b2: "reproduce/results/AppendixB.2/"
+
+  performance_odd_degree:
+    entry_module: "reproduce.performance.odd_degree.main"
+    command: "PYTHONPATH=src:. python -m reproduce.performance.odd_degree.main"
+    helper_script: "bash reproduce/performance/odd_degree/run_odd_degree.sh"
+    defaults:
+      timeout_seconds: 100
+      epsilon: 0.05
+      delta: 0.1
+      flush_every: 1
+      domain_sizes: [5, 6, 7, 8, 9]
+      m_values: [2, 4, 6]
+      k_formula: "directed_k = 2 * n"
+      algorithms: [approxmc, ganak, incremental3]
+      model_filename: "m-odd-degree-graph-sc2.wfomcs"
+    outputs:
+      csv_root: "reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/"
+      csv_pattern: "reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/odd-degree-n/m-odd-degree-graph-sc2/m-odd-degree-graph-sc2_m*.csv"
+      cnf_cache_root: "reproduce/performance/performance_results/raw_data/cnf/odd_degree/m-odd-degree-graph-sc2/"
+      figures_full_section6: "reproduce/performance/performance_results/Section6/"
+      figures_publish_section6: "reproduce/results/Section6/"
+
+  oeis_table2:
+    entry_script: "reproduce/OEISsequence/ganak_odd_degree.py"
+    helper_script: "bash reproduce/OEISsequence/run_ganak_odd_degree.sh"
+    command: "PYTHONPATH=src:. python reproduce/OEISsequence/ganak_odd_degree.py"
+    defaults:
+      max_n: 10
+      m_values: "even values in [0, n]"
+      k_values: "0..n(n-1)/2"
+      counter_default: "ganak"
+      approxmc_parameters:
+        epsilon: 0.05
+        delta: 0.1
+    outputs:
+      csv_primary: "reproduce/OEISsequence/odd_degree.csv"
+      csv_appendix_d: "reproduce/results/Appendix.D/Table_2.csv"
+      cnf_cache_root: "reproduce/OEISsequence/cnf/"
+
+artifact_checks:
+  after_run_all:
+    required_paths:
+      - "reproduce/correctness/correctness_results/raw_data/results_<timestamp>/"
+      - "reproduce/correctness/correctness_results/raw_data/odd_degree/results_<timestamp>/"
+      - "reproduce/performance/performance_results/raw_data/results_<timestamp>/"
+      - "reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/"
+      - "reproduce/results/Appendix.D/Table_2.csv"
+
+notes:
+  - "This manifest records actual script defaults as implemented in code."
+  - "For odd-degree performance, defaults are from benchmarks.py (n=5..9, k=2n, timeout=100)."
+  - "All run scripts assume .venv exists at repository root."

@@ -1,146 +1,179 @@
-# Exact Lifted Counter for Two-Variable Logic and Extensions
+# WFOMC with Counting and Modulo Counting Quantifiers
 
-This tool is for counting the models (or combinatorical structures) from the two-variable fragment of first-order logic and extensions.
+This repository contains the code accompanying the paper:
 
-### Installation
+> **A Fast Model Counting Algorithm for Two-Variable Logic with Counting and Modulo Counting Quantifiers**
+>  Shixin Sun, Astrid Klipfel, Ondřej Kuželka, Yuanhong Wang, Yi Chang
 
-Install UV via:
-[github](https://github.com/astral-sh/uv) or
+The `modk` branch contains the implementation of `INCREMENTALWFOMC3`, a lifted algorithm for weighted first-order model counting (WFOMC) on the two-variable fragment **C²** and its modulo counting extension **C²_mod**. 
+
+------
+
+## Quick Start
+
+```bash
+uv sync
+uv run wfomc -i models/modk/0mod2-regular-graph.wfomcs -a incremental3
 ```
+
+A successful run produces output ending with lines such as:
+
+```text
+WFOMC time: 0.12028004229068756
+WFOMC (arbitrary precision): 64
+WFOMC (round): 64 (exp(4.158883083359671856503392729))
+```
+
+> A successful run typically prints a parsing-time message, the exact WFOMC, its rounded exponential form, and several additional log lines.
+
+## Requirements
+
+- Python 3.11 or newer
+- A working C/C++ build toolchain (required by the native dependency `pynauty`)
+
+## Installation
+
+We recommend [uv](https://github.com/astral-sh/uv) for dependency management. Install it via pip or follow the [official instructions](https://github.com/astral-sh/uv).
+
+```bash
 pip install uv
 ```
 
 Sync the dependencies:
-```
+
+```bash
 uv sync
 ```
 
-### How to use
-```
-$ uv run wfomc -i [input] -a [algo] -e [unary_evidence_encoding]
-```
-where
-- `input` is the input file with the suffix `.wfomcs` or `.mln`
-- `algo` is the algorithm to use, including:
-  - `standard`: the standard WFOMC algorithm in Beame et al. (2015)
-  - `fast`: the fast WFOMC algorithm in Timothy van Bremen and Ondrej Kuzelka (2021)
-  - `fastv2` (default): the optimized fast WFOMC algorithm
-  - `incremental`: the incremental WFOMC algorithm for linear order axiom in Toth and Kuzelka (2022)
-  - `recursive`: the recursive WFOMC algorithm for linear order axiom in Meng et al. (2024)
-- `unary_evidence_encoding` is the encoding for unary evidence, including:
-  - `ccs` (default): using cardinality constraints to encode unary evidence, see Wang et al. (2024)
-  - `pc`: **only work for the algorithms `fast`, `fastv2` and `incremental`**
+Alternatively, install in editable mode with pip:
 
-## Input format
-
-The input file with the suffix `.wfomcs` contains the following information **in order**:
-1. First-order sentence with at most two logic variables (must in capital letters, e.g., `X`, `Y`, `Z`, etc.), see [fol_grammar.py](sampling_fo2/parser/fol_grammar.py) for details, e.g.,
-  * `\forall X: (\forall Y: (R(X, Y) <-> Z(X, Y)))`
-  * `\forall X: (\exists Y: (R(X, Y)))`
-  * `\exists X: (F(X) -> \forall Y: (R(X, Y)))`
-  * ..., even more complex sentence...
-2. Domain: 
-  * `domain=3` or
-  * `domain={p1, p2, p3}`, where `p1`, `p2`, `p3` are the constants in the domain (must start with a lowercase letter).
-3. Weighting (optional): `positve_weight negative_weight predicate`
-4. Cardinality constraint (optional): 
-  * `|P| = k`
-  * `|P| > k`
-  * `|P| >= k`
-  * `|P| < k`
-  * `|P| <= k`
-5. Unary evidence (optional): 
-  * `P(p1), ~P(p3)`
-
-### Use linear order constraint
-
-To use linear order constraint (or linear order axiom), just use the predefined predicate `LEQ` in the input file. 
-For the `head-tail` example in [Lifted Inference with Linear Order Axiom.](https://doi.org/10.1609/aaai.v37i10.26449), you can write the sentence as:
-```
-\forall X: (\forall Y: (~H(X) | ~T(X))) &
-\forall X: (\forall Y: (H(Y) & LEQ(X, Y) -> H(X))) &
-\forall X: (\forall Y: (T(X) & LEQ(X, Y) -> T(Y))) &
+```bash
+python -m pip install -e .
 ```
 
-The $k$-th predecessors are predifined as `PREk`, e.g., `PRE2(X, Y)` means `Y` is the 2nd predecessor of `X` in the linear order.
-See [predk](models/predk/) for more examples.
-The circular predecessor `CIRCULAR_PRED` is also predefined with `CIRCULAR_PRED(X, Y)` means `Y` is the predecessor of `X` in a circular order.
-The output count of circular order is always divided by the domain size to avoid overcounting.
+------
 
-> **Note: To use linear order constraint, you must use the `incremental` or `recursive` algorithm. To use $k$-th predecessor or circular predecessor, you must use the `incremental` algorithm.**
+## Usage
 
-
-### Example input file
-
-- 2 colored graphs:
+```bash
+uv run wfomc -i <input> [-o <output_dir>] [-a <algo>] [--debug]
 ```
+
+| Option            | Description                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| `-i <input>`      | Path to a `.wfomcs` input file                               |
+| `-a <algo>`       | (Optional) Algorithm to use; defaults to fastv2 (see table below) |
+| `-o <output_dir>` | (Optional) Output directory for logs; defaults to `./check-points`, and the solver writes logs to `OUTPUT_DIR/log.txt` |
+| `--debug`         | (Optional) Enable debug logging                              |
+
+**For the workflow used in the paper, use:**
+
+```bash
+uv run wfomc -i <input> -a incremental3
+```
+
+**Available algorithms:**
+
+| Algorithm      | Description                                                  |
+| -------------- | ------------------------------------------------------------ |
+| `incremental3` | **Recommended.** The main algorithm introduced in this paper, supporting counting and modulo counting quantifiers directly. |
+| `standard`     | Standard WFOMC (Beame et al., 2015)                          |
+| `fast`         | Fast WFOMC (van Bremen & Kuželka, 2021)                      |
+| `fastv2`       | Optimized fast WFOMC                                         |
+| `incremental`  | IncrementalWFOMC with linear order axiom (Tóth & Kuželka, 2023) |
+| `recursive`    | RecursiveWFOMC with linear order axiom (Meng et al., 2024)   |
+
+> **Note:** 
+>
+> - Only `incremental3` supports modulo counting quantifiers (`\exists_{rmodk}`). For all modulo counting benchmarks, use `-a incremental3`.
+>
+> - If the input contains a linear order predicate (`LEQ`), use `incremental`, `recursive`, or `incremental3`.
+
+
+
+------
+
+## Input Format
+
+See [Input-format.md](./Input-format.md) for the full input specification.
+
+## Example Input Files
+
+**2-regular graphs** — each vertex has degree exactly 2, using counting quantifiers:
+
+```text
+\forall X: (~E(X,X)) &
+\forall X: (\forall Y: (E(X,Y) -> E(Y,X))) &
+\forall X: (\exists_{=2} Y: (E(X,Y)))
+
+V = 7
+```
+
+**2-colored graphs** — each vertex is red or black; adjacent vertices have different colors:
+
+```text
 \forall X: (\forall Y: ((E(X,Y) -> E(Y,X)) &
                         (R(X) | B(X)) &
                         (~R(X) | ~B(X)) &
                         (E(X,Y) -> ~(R(X) & R(Y)) & ~(B(X) & B(Y)))))
 
-V = 10
+V = 7
 ```
 
-- 2 regular graphs:
-```
-\forall X: (~E(X,X)) &
-\forall X: (\forall Y: ((E(X,Y) -> E(Y,X)) &
-                        (E(X,Y) <-> (F1(X,Y) | F2(X,Y))) &
-                        (~F1(X, Y) | ~F2(X,Y)))) &
-\forall X: (\exists Y: (F1(X,Y))) & 
-\forall X: (\exists Y: (F2(X,Y)))
+**0mod2-regular graphs** — each vertex has even degree (modulo counting):
 
-V = 6
-|E| = 12
-```
-
-- 2 regular graphs where `\exists_{=2} Y: (E(X,Y))` means there are exactly 2 edges from each node (please refer to [Weighted First-Order Model Counting in the Two-Variable Fragment With Counting Quantifiers](https://jair.org/index.php/jair/article/view/12320/26673):
-```
+```text
 \forall X: (~E(X,X)) &
 \forall X: (\forall Y: (E(X,Y) -> E(Y,X))) &
-\forall X: (\exists_{=2} Y: (E(X,Y)))
+\forall X: (\exists_{0mod2} Y: (E(X,Y)))
 
-V = 6
+V = 5
 ```
 
-- Transformed from `friends-smokes` MLN:
+**m-odd-degree graphs**
+
+The file below (`m-odd-degree-graph-sc2.wfomcs`) counts undirected graphs on 4 vertices with exactly 0 odd-degree vertices and exactly 3 edges. 
+
+```text
+\forall X: (~E(X,X)) &
+\forall X: (\forall Y: (E(X,Y) -> E(Y,X))) &
+\forall X: (P(X) <-> (~Odd(X) & A(X) & C(X))) &
+\forall X: (\forall Y: (P(X) & B(X,Y) -> U(Y))) &
+\forall X: (\forall Y: (~P(X) -> (B(X,Y) <-> E(X,Y)))) &
+\forall X: (Odd(X) | A(X)) &
+\forall X: (A(X) | C(X)) &
+
+\forall X: (\exists_{1mod2} Y: (B(X, Y))) &
+
+\exists_{=0} X: (Odd(X)) &
+
+
+\exists_{=1} X: (U(X))
+
+n = 4
+1 -1 C
+|E| = 6 
 ```
-\forall X: (~fr(X,X)) &
-\forall X: (\forall Y: (fr(X,Y) -> fr(Y,X))) &
-\forall X: (\forall Y: (aux(X,Y) <-> (fr(X,Y) & sm(X) -> sm(Y)))) &
-\forall X: (\exists Y: (fr(X,Y)))
 
-person = 10
-2.7 1 aux
+
+------
+
+## Reproducibility
+
+For the paper reproduction scripts, setup details, and expected outputs, please
+refer to [reproduce/README.md](./reproduce/README.md).
+
+Minimal entry point from the repository root:
+
+```bash
+bash reproduce/run_all.sh
 ```
-
-> **Note: Now you can also directly input the MLN in the form defined in [mln_grammar.py](sampling_fo2/parser/mln_grammar.py)**
-```
-~friends(X,X).
-friends(X,Y) -> friends(Y,X).
-2.7 friends(X,Y) & smokes(X) -> smokes(Y)
-\forall X: (\exists Y: (fr(X,Y))).
-# or 
-\exists Y: (fr(X,Y)).
-
-person = 10
-```
-
-> Add unary evidence:
-```
-~friends(X,X).
-friends(X,Y) -> friends(Y,X).
-2.7 friends(X,Y) & smokes(X) -> smokes(Y)
-\forall X: (\exists Y: (fr(X,Y))).
-
-person = {alice, bob, charlie, david, eve}
-
-smokes(alice), ~smokes(bob)
-``` 
-
-More examples are in [models](models/)
+------
 
 ## References
 
 Please refer to [reference.bib](reference.bib) for the references of the algorithms.
+
+## License
+
+This project is released under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
