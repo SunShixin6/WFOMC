@@ -1,8 +1,7 @@
 # Reproducibility Guide
 
-This directory provides the scripts used to reproduce the paper artifacts for
-WFOMC experiments, including counting and modulo-counting benchmarks
-(`C²` / `C²_mod`).
+This directory contains scripts for reproducing the experimental artifacts
+reported in the paper, including benchmarks in `C²` and `C²_mod`.
 
 For solver usage and algorithm background, see the repository-level
 [README](../README.md).
@@ -44,6 +43,9 @@ Some stages call external exact/approximate model counters:
 
 - `GANAK_BIN`: Ganak executable (exact counting)
 - `APPROXMC_BIN`: ApproxMC executable (approximate counting)
+
+For a full end-to-end run (`bash reproduce/run_all.sh`), both counters must be
+available (via environment variables or `PATH`).
 
 Resolution order:
 
@@ -135,6 +137,7 @@ Minimal reviewer-facing checks:
 3. At least one PDF exists in each of:
    - `reproduce/results/Section6/`
    - `reproduce/results/AppendixB.1/`
+   - `reproduce/results/AppendixB.2/`
 
 Quick checks:
 
@@ -142,6 +145,7 @@ Quick checks:
 test -s reproduce/results/Appendix.D/Table_2.csv
 find reproduce/results/Section6 -name '*.pdf' | head -n 3
 find reproduce/results/AppendixB.1 -name '*.pdf' | head -n 3
+find reproduce/results/AppendixB.2 -name '*.pdf' | head -n 3
 ```
 
 ## Individual Entry Points
