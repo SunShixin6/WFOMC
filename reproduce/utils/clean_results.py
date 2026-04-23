@@ -438,3 +438,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Deletion complete. Removed {removed} path(s), missing {missing} path(s).")
 
     return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -7,6 +7,8 @@ VENV_PATH="${REPO_ROOT}/.venv"
 PYTHON_BIN="${VENV_PATH}/bin/python"
 TARGET_SCRIPT="${SCRIPT_DIR}/ganak_odd_degree.py"
 LOG_HELPER="${REPO_ROOT}/reproduce/utils/run_logging.sh"
+USE_UV=false
+PYTHON_CMD=()
 
 print_usage() {
   cat <<'EOF'
@@ -55,14 +57,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ ! -f "${VENV_PATH}/bin/activate" ]]; then
-  echo "Error: virtual environment not found at ${VENV_PATH}" >&2
-  echo "Please create it first, e.g. python -m venv .venv" >&2
-  exit 1
-fi
-
-if [[ ! -x "${PYTHON_BIN}" ]]; then
-  echo "Error: Python executable not found at ${PYTHON_BIN}" >&2
+if [[ -x "${PYTHON_BIN}" ]]; then
+  PYTHON_CMD=("${PYTHON_BIN}")
+elif command -v uv >/dev/null 2>&1; then
+  USE_UV=true
+  PYTHON_CMD=(uv run python)
+  echo "Info: ${VENV_PATH} not found; falling back to 'uv run python'."
+else
+  echo "Error: Python runtime not found." >&2
+  echo "Expected ${PYTHON_BIN}, or install uv to enable fallback execution." >&2
   exit 1
 fi
 
@@ -86,12 +89,14 @@ RUN_META_FILE="${RUN_LOG_DIR}/oeissequence_table2.meta.json"
 
 trap 'exit_code=$?; repro_write_meta "${RUN_META_FILE}" "${REPO_ROOT}" "reproduce/OEISsequence/run_ganak_odd_degree.sh" "${RUN_START_TIME}" "${RUN_LOG_DIR}" "${RUN_LOG_FILE}" "${exit_code}"' EXIT
 
-source "${VENV_PATH}/bin/activate"
+if [[ "${USE_UV}" == "false" ]]; then
+  source "${VENV_PATH}/bin/activate"
+fi
 
 cd "${REPO_ROOT}"
 echo "Run logs directory: ${RUN_LOG_DIR}"
 echo "Step log: ${RUN_LOG_FILE}"
 echo "REPRO_DISABLE_PYTHON_LOGGING=${PYTHON_LOGGING_DISABLED}"
-if ! repro_run_and_tee "reproduce/OEISsequence/ganak_odd_degree.py" "${RUN_LOG_FILE}" env PYTHONPATH=src:. REPRO_DISABLE_PYTHON_LOGGING="${PYTHON_LOGGING_DISABLED}" "${PYTHON_BIN}" "${TARGET_SCRIPT}" "${FORWARDED_ARGS[@]}"; then
+if ! repro_run_and_tee "reproduce/OEISsequence/ganak_odd_degree.py" "${RUN_LOG_FILE}" env PYTHONPATH=src:. REPRO_DISABLE_PYTHON_LOGGING="${PYTHON_LOGGING_DISABLED}" "${PYTHON_CMD[@]}" "${TARGET_SCRIPT}" "${FORWARDED_ARGS[@]}"; then
   exit 1
 fi

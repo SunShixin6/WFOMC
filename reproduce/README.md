@@ -1,9 +1,9 @@
 # Reproducibility Guide
 
-This directory contains scripts for reproducing the experimental artifacts
-reported in the paper, including benchmarks in `C²` and `C²_mod`.
+This directory contains scripts for reproducing the experimental results
+reported in the paper, including benchmark families for `C²` and `C²_mod`.
 
-For solver usage and algorithm background, see the repository-level
+For solver usage and algorithmic background, see the top-level
 [README](../README.md).
 
 ## Prerequisites
@@ -11,16 +11,17 @@ For solver usage and algorithm background, see the repository-level
 - Python `>=3.11`
 - Dependencies installed from repository root (recommended: `uv sync`)
 - Project virtual environment at `.venv`
+- The run scripts use `.venv` when available and automatically fall back to `uv run python` otherwise.
 
 ## Quick Start
 
 Run from repository root:
 
 ```bash
-# 1) Validate command wiring without heavy jobs
+# 1) Validate the pipeline without launching heavy jobs
 bash reproduce/run_all.sh --dry-run
 
-# 2) Lightweight end-to-end sanity run
+# 2) Lightweight end-to-end sanity check
 bash reproduce/run_all.sh --smoke --disable-python-logging
 
 # 3) Full reproduction
@@ -39,7 +40,7 @@ bash reproduce/run_all.sh
 
 ## External Model Counters
 
-Some stages call external exact/approximate model counters:
+Some stages invoke external model counters:
 
 - `GANAK_BIN`: Ganak executable (exact counting)
 - `APPROXMC_BIN`: ApproxMC executable (approximate counting)
@@ -47,7 +48,7 @@ Some stages call external exact/approximate model counters:
 For a full end-to-end run (`bash reproduce/run_all.sh`), both counters must be
 available (via environment variables or `PATH`).
 
-Resolution order:
+Lookup order:
 
 1. Environment variable value, if set.
 2. Command from `PATH` (`ganak`, `approxmc`).
@@ -87,10 +88,10 @@ Useful flags:
 - `--disable-python-logging`
 - `--enable-python-logging`
 
-Equivalent environment switch:
+Equivalent environment variable:
 
-- `REPRO_DISABLE_PYTHON_LOGGING=1` (quiet)
-- `REPRO_DISABLE_PYTHON_LOGGING=0` (default)
+- `REPRO_DISABLE_PYTHON_LOGGING=1` disables Python logging.
+- `REPRO_DISABLE_PYTHON_LOGGING=0` keeps the default behavior.
 
 To keep terminal output minimal while preserving full logs:
 
@@ -119,7 +120,7 @@ After a successful full run, the following outputs should exist:
 - `reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/`
 - `reproduce/results/Appendix.D/Table_2.csv`
 
-## Artifact Mapping
+## Mapping from Paper Figures and Tables to Scripts
 
 - `Figure_5_to_9` -> `reproduce.performance.main` (Section 6 runtime plots)
 - `Figure_10` -> `reproduce.performance.odd_degree.main`
@@ -133,11 +134,23 @@ After a successful full run, the following outputs should exist:
 Minimal reviewer-facing checks:
 
 1. `bash reproduce/run_all.sh` exits with code `0`.
-2. `reproduce/results/Appendix.D/Table_2.csv` exists and is non-empty.
-3. At least one PDF exists in each of:
-   - `reproduce/results/Section6/`
-   - `reproduce/results/AppendixB.1/`
-   - `reproduce/results/AppendixB.2/`
+2. One-command basic check passes:
+
+```bash
+bash reproduce/utils/check_results.sh
+```
+
+3. (Optional) Strict check passes for expected figure filenames and CSV coverage:
+
+```bash
+bash reproduce/utils/check_results.sh --strict
+```
+
+4. (Optional) Export a machine-readable report:
+
+```bash
+bash reproduce/utils/check_results.sh --strict --json reproduce/results/check_report.json
+```
 
 Quick checks:
 
@@ -182,7 +195,7 @@ Default timeout: `10000`.
 bash reproduce/performance/odd_degree/run_odd_degree.sh
 ```
 
-Defaults: timeout `100`, epsilon `0.05`, delta `0.1`, fixed `m in {2,4,6}`.
+Defaults: timeout `100`, epsilon `0.05`, delta `0.1`, with fixed `m ∈ {2,4,6}`.
 
 ### OEIS / Table 2 Generation
 
@@ -202,11 +215,11 @@ Use the cleanup helper to remove generated artifacts:
 
 ```bash
 # List available figure/table keys
-bash reproduce/clean_results.sh --list
+bash reproduce/utils/clean_results.sh --list
 
 # Remove all generated outputs and related logs
-bash reproduce/clean_results.sh --all --yes
+bash reproduce/utils/clean_results.sh --all --yes
 
 # Remove selected artifacts only
-bash reproduce/clean_results.sh --figure Figure_11_to_12 --figure Figure_10 --yes
+bash reproduce/utils/clean_results.sh --figure Figure_11_to_12 --figure Figure_10 --yes
 ```

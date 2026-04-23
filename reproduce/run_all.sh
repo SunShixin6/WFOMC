@@ -8,6 +8,9 @@ PYTHON_BIN="${VENV_PATH}/bin/python"
 OEIS_RUNNER="${REPO_ROOT}/reproduce/OEISsequence/run_ganak_odd_degree.sh"
 LOG_HELPER="${REPO_ROOT}/reproduce/utils/run_logging.sh"
 
+USE_UV=false
+PYTHON_CMD=()
+
 print_usage() {
 	cat <<'EOF'
 Usage: bash reproduce/run_all.sh [--smoke] [--dry-run] [args...]
@@ -101,14 +104,15 @@ if [[ "${SMOKE_MODE}" == "true" ]]; then
 	echo "Smoke mode enabled (REPRO_SMOKE=1)"
 fi
 
-if [[ ! -f "${VENV_PATH}/bin/activate" ]]; then
-	echo "Error: virtual environment not found at ${VENV_PATH}" >&2
-	echo "Please create it first, e.g. python -m venv .venv" >&2
-	exit 1
-fi
-
-if [[ ! -x "${PYTHON_BIN}" ]]; then
-	echo "Error: Python executable not found at ${PYTHON_BIN}" >&2
+if [[ -x "${PYTHON_BIN}" ]]; then
+	PYTHON_CMD=("${PYTHON_BIN}")
+elif command -v uv >/dev/null 2>&1; then
+	USE_UV=true
+	PYTHON_CMD=(uv run python)
+	echo "Info: ${VENV_PATH} not found; falling back to 'uv run python'."
+else
+	echo "Error: Python runtime not found." >&2
+	echo "Expected ${PYTHON_BIN}, or install uv to enable fallback execution." >&2
 	exit 1
 fi
 
@@ -132,7 +136,9 @@ RUN_META_FILE="${RUN_LOG_DIR}/run_meta.json"
 
 trap 'exit_code=$?; repro_write_meta "${RUN_META_FILE}" "${REPO_ROOT}" "reproduce/run_all.sh" "${RUN_START_TIME}" "${RUN_LOG_DIR}" "${RUN_LOG_FILE}" "${exit_code}"' EXIT
 
-source "${VENV_PATH}/bin/activate"
+if [[ "${USE_UV}" == "false" ]]; then
+	source "${VENV_PATH}/bin/activate"
+fi
 
 cd "${REPO_ROOT}"
 
@@ -169,19 +175,19 @@ for i in "${!MODULES[@]}"; do
 
 	if [[ "${DRY_RUN}" == "true" ]]; then
 		if [[ "${MODULE}" == "reproduce.performance.main" ]]; then
-			echo "[dry-run] PYTHONPATH=src:. ${PYTHON_BIN} -m ${MODULE}" | tee -a "${STEP_LOG_FILE}"
+			echo "[dry-run] PYTHONPATH=src:. ${PYTHON_CMD[*]} -m ${MODULE}" | tee -a "${STEP_LOG_FILE}"
 		else
-			echo "[dry-run] PYTHONPATH=src:. ${PYTHON_BIN} -m ${MODULE} ${MODULE_ARGS[*]}" | tee -a "${STEP_LOG_FILE}"
+			echo "[dry-run] PYTHONPATH=src:. ${PYTHON_CMD[*]} -m ${MODULE} ${MODULE_ARGS[*]}" | tee -a "${STEP_LOG_FILE}"
 		fi
 		continue
 	fi
 
 	if [[ "${MODULE}" == "reproduce.performance.main" ]]; then
-		if ! repro_run_and_tee "${MODULE}" "${STEP_LOG_FILE}" env PYTHONPATH=src:. "${PYTHON_BIN}" -m "${MODULE}"; then
+		if ! repro_run_and_tee "${MODULE}" "${STEP_LOG_FILE}" env PYTHONPATH=src:. "${PYTHON_CMD[@]}" -m "${MODULE}"; then
 			exit 1
 		fi
 	else
-		if ! repro_run_and_tee "${MODULE}" "${STEP_LOG_FILE}" env PYTHONPATH=src:. "${PYTHON_BIN}" -m "${MODULE}" "${MODULE_ARGS[@]}"; then
+		if ! repro_run_and_tee "${MODULE}" "${STEP_LOG_FILE}" env PYTHONPATH=src:. "${PYTHON_CMD[@]}" -m "${MODULE}" "${MODULE_ARGS[@]}"; then
 			exit 1
 		fi
 	fi
