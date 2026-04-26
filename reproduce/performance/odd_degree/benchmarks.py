@@ -14,7 +14,7 @@ DEFAULT_TIMEOUT_SECONDS = 100
 # Fixed paper-style odd-degree setup.
 FIXED_DOMAIN_SIZES = list(range(5, 10))
 FIXED_M_VALUES = [2, 4, 6]
-FIXED_ALGORITHMS = ["approxmc", "ganak", "incremental3"]
+FIXED_ALGORITHMS = ["incremental3", "ganak", "approxmc"]
 FIXED_K_MULTIPLIER = 2
 FIXED_GROUP_NAME = "odd-degree-n"
 FIXED_MODEL_NAME = "m-odd-degree-graph-sc2"

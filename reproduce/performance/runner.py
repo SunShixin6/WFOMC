@@ -205,8 +205,6 @@ def run_experiment(
     disable_python_logging: bool = False,
 ) -> None:
     """Run the entire experimental batch and generate CSV files and graphs"""
-    from wfomc import Algo
-
     apply_python_logging_policy(disable_python_logging, update_env=True)
 
     total_iterations = 0
@@ -238,7 +236,7 @@ def run_experiment(
                     writer = csv.DictWriter(csvfile, fieldnames=CSV_FIELDNAMES)
                     writer.writeheader()
 
-                    for algo in [a for a in Algo if a.value in algorithms]:
+                    for algo_name in [str(a).lower() for a in algorithms]:
                         skip_domain_size = False
                         for n in domain_size:
                             if skip_domain_size:
@@ -250,7 +248,7 @@ def run_experiment(
                                 model_name=model_name,
                                 model_csv_name=model_csv_name,
                                 domain_size=n,
-                                algo=algo,
+                                algo=algo_name,
                             )
 
                             if (

@@ -11,6 +11,9 @@ from reproduce.utils.figure_naming import resolve_publish_figure_filename
 from .benchmarks import RuntimeConfig
 
 
+PAPER_ALGORITHM_ORDER = ["incremental3", "dr", "ganak", "approxmc", "recursive", "fast"]
+
+
 def plot_comparison(
     csv_file_path: str,
     config: RuntimeConfig,
@@ -41,7 +44,10 @@ def plot_comparison(
         print(f"CSV has no successful rows, skip plotting: {csv_path}")
         return
 
-    algorithms = valid_data["algorithm"].unique()
+    available_algorithms = [str(a).lower() for a in valid_data["algorithm"].dropna().unique()]
+    # Keep paper order first, then append unknown algorithms deterministically.
+    algorithms = [a for a in PAPER_ALGORITHM_ORDER if a in available_algorithms]
+    algorithms.extend(a for a in available_algorithms if a not in algorithms)
     domain_sizes = sorted(valid_data["domain_size"].unique())
 
     plt.figure(figsize=(12, 8))

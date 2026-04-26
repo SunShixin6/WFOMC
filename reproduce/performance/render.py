@@ -10,6 +10,9 @@ import matplotlib.ticker as mticker
 import pandas as pd
 
 
+PAPER_ALGORITHM_ORDER = ["recursive", "fast", "incremental3", "dr", "incremental"]
+
+
 def plot_comparison(
     csv_file_path: str,
     config: RuntimeConfig,
@@ -32,7 +35,10 @@ def plot_comparison(
 
     data = data[~data["status"].isin(["timeout", "error"])]
 
-    algorithms = data["algorithm"].unique()
+    available_algorithms = [str(a).lower() for a in data["algorithm"].dropna().unique()]
+    # Keep paper order first, then append any unknown algorithms deterministically.
+    algorithms = [a for a in PAPER_ALGORITHM_ORDER if a in available_algorithms]
+    algorithms.extend(a for a in available_algorithms if a not in algorithms)
     domain_sizes = sorted(data["domain_size"].unique())
 
     plt.figure(figsize=(12, 8))

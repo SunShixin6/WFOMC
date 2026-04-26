@@ -19,7 +19,7 @@ The authoritative defaults come from `benchmarks.py`:
 - domain sizes: `n=5..9`
 - directed edge count: `k=2n`
 - odd-degree groups: `m=2,4,6`
-- algorithms: `approxmc`, `ganak`, `incremental3`
+- algorithms: `incremental3`, `ganak`, `approxmc`
 - timeout: `100` seconds
 - flush every: `1`
 

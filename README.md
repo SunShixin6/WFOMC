@@ -8,6 +8,17 @@ This repository contains the code accompanying the paper:
 The `modk` branch contains the implementation of `INCREMENTALWFOMC3`, a lifted algorithm for weighted first-order model counting (WFOMC) on the two-variable fragment **C²** and its modulo counting extension **C²_mod**. 
 
 ------
+## Reproducibility
+
+For the paper reproduction scripts, setup details, and expected outputs, please
+refer to [reproduce/README.md](./reproduce/README.md).
+
+Minimal entry point from the repository root:
+
+```bash
+bash reproduce/run_all.sh
+```
+------
 
 ## Quick Start
 
@@ -158,17 +169,7 @@ n = 4
 
 ------
 
-## Reproducibility
 
-For the paper reproduction scripts, setup details, and expected outputs, please
-refer to [reproduce/README.md](./reproduce/README.md).
-
-Minimal entry point from the repository root:
-
-```bash
-bash reproduce/run_all.sh
-```
-------
 
 ## References
 

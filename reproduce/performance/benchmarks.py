@@ -82,7 +82,7 @@ def default_groups() -> list[dict[str, Any]]:
             "name": "4-regular-3-colored-graph",
             "domain_size": list(range(2, 40, 1)),
             # "domain_size": list(range(2, 10, 1)),
-            "algorithms": ["fast", "incremental3", "recursive"],
+            "algorithms": ["recursive", "fast", "incremental3"],
             "models": {
                 "4-regular-3-colored-graph": "4-regular-3-colored-graph.wfomcs",
             },
@@ -91,7 +91,7 @@ def default_groups() -> list[dict[str, Any]]:
             "name": "directed-graphs",
             "domain_size": list(range(2, 50, 3)),
             # "domain_size": list(range(2, 20, 3)),  # test
-            "algorithms": ["fast", "incremental3", "recursive"],
+            "algorithms": ["recursive", "fast", "incremental3"],
             "models": {
                 "2-regular-directed-graph": "2-regular-directed-graph.wfomcs",
                 "3-regular-directed-graph": "3-regular-directed-graph.wfomcs",
