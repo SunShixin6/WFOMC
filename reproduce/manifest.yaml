@@ -21,6 +21,7 @@ external_counters:
         - "reproduce.correctness.main (when algorithm=ganak)"
         - "reproduce.correctness.odd_degree.main (when algorithm=ganak)"
         - "reproduce.performance.odd_degree.main (when algorithm=ganak)"
+        - "reproduce.performance.rmodk.main (when algorithm=ganak)"
         - "reproduce/OEISsequence/ganak_odd_degree.py"
     APPROXMC_BIN:
       default_command: "approxmc"
@@ -28,6 +29,7 @@ external_counters:
         - "reproduce.correctness.main (when algorithm=approxmc)"
         - "reproduce.correctness.odd_degree.main (when algorithm=approxmc)"
         - "reproduce.performance.odd_degree.main (when algorithm=approxmc)"
+        - "reproduce.performance.rmodk.main (when algorithm=approxmc)"
         - "reproduce/OEISsequence/ganak_odd_degree.py"
 
 orchestration:
@@ -40,6 +42,7 @@ orchestration:
       - "reproduce.correctness.odd_degree.main"
       - "reproduce.performance.main"
       - "reproduce.performance.odd_degree.main"
+      - "reproduce.performance.rmodk.main"
       - "reproduce/OEISsequence/run_ganak_odd_degree.sh"
     smoke_activation:
       env_var: "REPRO_SMOKE"
@@ -49,6 +52,7 @@ orchestration:
         - "reproduce.correctness.main"
         - "reproduce.correctness.odd_degree.main"
         - "reproduce.performance.odd_degree.main"
+        - "reproduce.performance.rmodk.main"
       module_args_not_forwarded_to:
         - "reproduce.performance.main"
       oeis_only_args:
@@ -88,6 +92,11 @@ smoke_profile:
     performance_odd_degree:
       domain_sizes: "first 2"
       m_values: "all"
+      algorithms: [incremental3]
+      timeout_seconds_cap: 120
+    performance_rmodk:
+      domain_sizes_per_group: "first 2"
+      models_per_group: "all"
       algorithms: [incremental3]
       timeout_seconds_cap: 120
     oeis_table2:
@@ -211,13 +220,6 @@ workflows:
         models:
           - "BA_CC.wfomcs"
           - "BA.wfomcs"
-      - name: "modk-regular-graphs"
-        domain_sizes: "2..38 step 2"
-        algorithms: [recursive, fast, incremental3]
-        models:
-          - "0mod2-regular-graph.wfomcs"
-          - "1mod2-regular-graph.wfomcs"
-          - "2mod4-regular-graph-sc2.wfomcs"
     outputs:
       csv_root: "reproduce/performance/performance_results/raw_data/results_<timestamp>/"
       csv_pattern: "reproduce/performance/performance_results/raw_data/results_<timestamp>/<group>/<model>/<model>.csv"
@@ -231,11 +233,11 @@ workflows:
     command: "PYTHONPATH=src:. python -m reproduce.performance.odd_degree.main"
     helper_script: "bash reproduce/performance/odd_degree/run_odd_degree.sh"
     defaults:
-      timeout_seconds: 100
+      timeout_seconds: 10000
       epsilon: 0.05
       delta: 0.1
       flush_every: 1
-      domain_sizes: [5, 6, 7, 8, 9]
+      domain_sizes: "5..20 step 1"
       m_values: [2, 4, 6]
       k_formula: "directed_k = 2 * n"
       algorithms: [approxmc, ganak, incremental3]
@@ -244,6 +246,28 @@ workflows:
       csv_root: "reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/"
       csv_pattern: "reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/odd-degree-n/m-odd-degree-graph-sc2/m-odd-degree-graph-sc2_m*.csv"
       cnf_cache_root: "reproduce/performance/performance_results/raw_data/cnf/odd_degree/m-odd-degree-graph-sc2/"
+      figures_full_section6: "reproduce/performance/performance_results/Section6/"
+      figures_publish_section6: "reproduce/results/Section6/"
+
+  performance_rmodk:
+    entry_module: "reproduce.performance.rmodk.main"
+    command: "PYTHONPATH=src:. python -m reproduce.performance.rmodk.main"
+    helper_script: "bash reproduce/performance/rmodk/run_rmodk.sh"
+    defaults:
+      timeout_seconds: 10000
+      epsilon: 0.05
+      delta: 0.1
+      flush_every: 1
+      domain_sizes: "2..20 step 1"
+      algorithms: [incremental3, ganak, approxmc]
+      models:
+        - "0mod2-regular-graph.wfomcs"
+        - "1mod2-regular-graph.wfomcs"
+        - "2mod4-regular-graph-sc2.wfomcs"
+    outputs:
+      csv_root: "reproduce/performance/performance_results/raw_data/rmodk/results_<timestamp>/"
+      csv_pattern: "reproduce/performance/performance_results/raw_data/rmodk/results_<timestamp>/rmodk-regular-graphs/<model>/<model>.csv"
+      cnf_cache_root: "reproduce/performance/performance_results/raw_data/cnf/rmodk/<model>/"
       figures_full_section6: "reproduce/performance/performance_results/Section6/"
       figures_publish_section6: "reproduce/results/Section6/"
 
@@ -271,9 +295,10 @@ artifact_checks:
       - "reproduce/correctness/correctness_results/raw_data/odd_degree/results_<timestamp>/"
       - "reproduce/performance/performance_results/raw_data/results_<timestamp>/"
       - "reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/"
+      - "reproduce/performance/performance_results/raw_data/rmodk/results_<timestamp>/"
       - "reproduce/results/Appendix.D/Table_2.csv"
 
 notes:
   - "This manifest records actual script defaults as implemented in code."
-  - "For odd-degree performance, defaults are from benchmarks.py (n=5..9, k=2n, timeout=100)."
+  - "For odd-degree performance, defaults are from benchmarks.py (n=5..9, k=2n, timeout=10000)."
   - "All run scripts assume .venv exists at repository root."

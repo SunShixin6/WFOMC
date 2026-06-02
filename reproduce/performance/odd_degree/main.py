@@ -17,7 +17,12 @@ if __package__ is None or __package__ == "":
         if candidate_str not in sys.path:
             sys.path.insert(0, candidate_str)
 
-from reproduce.performance.odd_degree.benchmarks import DEFAULT_FLUSH_EVERY, TIMEZONE, build_runtime_config
+from reproduce.performance.odd_degree.benchmarks import (
+    DEFAULT_FLUSH_EVERY,
+    DEFAULT_TIMEOUT_SECONDS,
+    TIMEZONE,
+    build_runtime_config,
+)
 from reproduce.performance.odd_degree.runner import run_experiment
 from reproduce.utils.smoke_profile import (
     apply_smoke_performance_odd_degree_config,
@@ -26,19 +31,27 @@ from reproduce.utils.smoke_profile import (
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    disable_logging_default = os.getenv("REPRO_DISABLE_PYTHON_LOGGING", "0") == "1"
+    disable_logging_default = os.getenv("REPRO_DISABLE_PYTHON_LOGGING", "1") != "0"
+    verbose_default = not disable_logging_default
 
     parser = argparse.ArgumentParser(
         description="Run fixed odd-degree benchmark experiments (m=2/4/6, directed k=2n)."
     )
     parser.add_argument("--models-path", type=str, default=None)
-    parser.add_argument("--timeout-seconds", type=int, default=100)
+    parser.add_argument("--timeout-seconds", type=int, default=DEFAULT_TIMEOUT_SECONDS)
     parser.add_argument("--flush-every", type=int, default=DEFAULT_FLUSH_EVERY)
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--verbose",
+        action="store_true",
+        default=verbose_default,
+        help="Enable Python logging output emitted by benchmark workers.",
+    )
+    group.add_argument(
         "--disable-python-logging",
         action="store_true",
         default=disable_logging_default,
-        help="Disable Python logging output emitted by benchmark workers.",
+        help="Disable Python logging output emitted by benchmark workers (default).",
     )
     parser.add_argument(
         "--smoke",
@@ -81,7 +94,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         config=config,
         results_path=results_path,
         flush_every=args.flush_every,
-        disable_python_logging=args.disable_python_logging,
+        disable_python_logging=(args.disable_python_logging or not args.verbose),
     )
 
 

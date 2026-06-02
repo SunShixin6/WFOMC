@@ -137,6 +137,7 @@ def run_checks(repo_root: Path, strict: bool) -> list[CheckItem]:
             repo_root / "reproduce" / "correctness" / "correctness_results" / "raw_data" / "odd_degree",
             repo_root / "reproduce" / "performance" / "performance_results" / "raw_data",
             repo_root / "reproduce" / "performance" / "performance_results" / "raw_data" / "odd_degree",
+            repo_root / "reproduce" / "performance" / "performance_results" / "raw_data" / "rmodk",
         ]
         for path in csv_roots:
             ok, detail = _has_any_csv_recursive(path)

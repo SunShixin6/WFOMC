@@ -117,6 +117,23 @@ def apply_smoke_performance_odd_degree_config(config: Any) -> Any:
     )
 
 
+def apply_smoke_performance_rmodk_config(config: Any) -> Any:
+    """Apply lightweight overrides for reproduce.performance.rmodk.main."""
+    smoke_groups = []
+    for group in config.groups:
+        new_group = dict(group)
+        new_group["domain_sizes"] = _take(group["domain_sizes"], 2)
+        new_group["algorithms"] = _prefer_incremental3(group["algorithms"])
+        new_group["models"] = dict(group["models"])
+        smoke_groups.append(new_group)
+
+    return replace(
+        config,
+        timeout_seconds=min(int(config.timeout_seconds), 120),
+        groups=smoke_groups,
+    )
+
+
 def resolve_oeis_max_n(
     cli_max_n: int | None,
     cli_smoke: bool,

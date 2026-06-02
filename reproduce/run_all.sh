@@ -20,10 +20,12 @@ Run all reproduction workflows from repository root.
 Options:
 	--smoke        Enable smoke profile (small benchmark ranges).
 	--dry-run      Print planned commands and exit without executing.
+	--verbose
+	                       Enable Python logging in reproduce runners.
 	--disable-python-logging
-	               Disable Python logging in reproduce runners.
+	                       Keep Python logging disabled (default).
 	--enable-python-logging
-	               Enable Python logging in reproduce runners.
+	                       Alias for --verbose.
 	-h, --help     Show this help message.
 
 Argument forwarding:
@@ -31,6 +33,7 @@ Argument forwarding:
 		- reproduce.correctness.main
 		- reproduce.correctness.odd_degree.main
 		- reproduce.performance.odd_degree.main
+		- reproduce.performance.rmodk.main
 		- (compatible generic args only)
 
 	OEIS-only arguments:
@@ -50,13 +53,18 @@ EOF
 
 DRY_RUN=false
 SMOKE_MODE=false
-DISABLE_PYTHON_LOGGING=false
+DISABLE_PYTHON_LOGGING=true
 MODULE_ARGS=()
 OEIS_ARGS=()
 
-if [[ "${REPRO_DISABLE_PYTHON_LOGGING:-0}" == "1" ]]; then
-	DISABLE_PYTHON_LOGGING=true
+if [[ -n "${REPRO_DISABLE_PYTHON_LOGGING:-}" ]]; then
+        if [[ "${REPRO_DISABLE_PYTHON_LOGGING}" == "0" ]]; then
+                DISABLE_PYTHON_LOGGING=false
+        else
+                DISABLE_PYTHON_LOGGING=true
+        fi
 fi
+
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -64,22 +72,22 @@ while [[ $# -gt 0 ]]; do
 			print_usage
 			exit 0
 			;;
-		--dry-run)
-			DRY_RUN=true
-			shift
-			;;
-		--smoke)
-			SMOKE_MODE=true
-			shift
-			;;
-		--disable-python-logging)
-			DISABLE_PYTHON_LOGGING=true
-			shift
-			;;
-		--enable-python-logging)
-			DISABLE_PYTHON_LOGGING=false
-			shift
-			;;
+                --dry-run)
+                        DRY_RUN=true
+                        shift
+                        ;;
+                --smoke)
+                        SMOKE_MODE=true
+                        shift
+                        ;;
+                --disable-python-logging)
+                        DISABLE_PYTHON_LOGGING=true
+                        shift
+                        ;;
+                --verbose|--enable-python-logging)
+                        DISABLE_PYTHON_LOGGING=false
+                        shift
+                        ;;
 		--ganak-path|--approxmc-path|--max-n)
 			if [[ $# -lt 2 ]]; then
 				echo "Error: option '$1' requires a value" >&2
@@ -162,6 +170,7 @@ MODULES=(
 	"reproduce.correctness.odd_degree.main"
 	"reproduce.performance.main"
 	"reproduce.performance.odd_degree.main"
+	"reproduce.performance.rmodk.main"
 )
 TOTAL_STEPS="$(( ${#MODULES[@]} + 1 ))"
 

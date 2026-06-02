@@ -9,17 +9,24 @@ from typing import Sequence
 from zoneinfo import ZoneInfo
 
 # Allow direct execution:
-# python reproduce/performance/main.py
+# python reproduce/performance/rmodk/main.py
 if __package__ is None or __package__ == "":
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = Path(__file__).resolve().parents[3]
     for candidate in (repo_root, repo_root / "src"):
         candidate_str = str(candidate)
         if candidate_str not in sys.path:
             sys.path.insert(0, candidate_str)
 
-from reproduce.performance.benchmarks import DEFAULT_FLUSH_EVERY, TIMEZONE, build_runtime_config
-from reproduce.performance.runner import run_experiment
-from reproduce.utils.smoke_profile import apply_smoke_performance_config, is_smoke_mode
+from reproduce.performance.rmodk.benchmarks import (
+    DEFAULT_DELTA,
+    DEFAULT_EPSILON,
+    DEFAULT_FLUSH_EVERY,
+    DEFAULT_TIMEOUT_SECONDS,
+    TIMEZONE,
+    build_runtime_config,
+)
+from reproduce.performance.rmodk.runner import run_experiment
+from reproduce.utils.smoke_profile import apply_smoke_performance_rmodk_config, is_smoke_mode
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -27,10 +34,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     verbose_default = not disable_logging_default
 
     parser = argparse.ArgumentParser(
-        description="Run performance experiments under reproduce style."
+        description="Run Figure 9 modulo-counting regular graph performance experiments."
     )
     parser.add_argument("--models-path", type=str, default=None)
-    parser.add_argument("--timeout-seconds", type=int, default=10000)
+    parser.add_argument("--timeout-seconds", type=int, default=DEFAULT_TIMEOUT_SECONDS)
+    parser.add_argument("--epsilon", type=float, default=DEFAULT_EPSILON)
+    parser.add_argument("--delta", type=float, default=DEFAULT_DELTA)
     parser.add_argument("--flush-every", type=int, default=DEFAULT_FLUSH_EVERY)
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -62,20 +71,26 @@ def main(argv: Sequence[str] | None = None) -> None:
     config = build_runtime_config(
         models_path=models_path,
         timeout_seconds=args.timeout_seconds,
+        epsilon=args.epsilon,
+        delta=args.delta,
     )
 
     if is_smoke_mode(args.smoke):
-        config = apply_smoke_performance_config(config)
-        print("Smoke mode enabled for performance.main")
+        config = apply_smoke_performance_rmodk_config(config)
+        print("Smoke mode enabled for performance.rmodk.main")
 
     timestamp = datetime.now(ZoneInfo(TIMEZONE)).strftime("%Y%m%d_%H%M%S")
-    csv_results_path = config.csv_results_path / f"results_{timestamp}"
-    csv_results_path.mkdir(parents=True, exist_ok=True)
+    results_path = config.csv_results_root / f"results_{timestamp}"
 
-    print(f"The experimental results will be saved in:{csv_results_path}")
+    results_path.mkdir(parents=True, exist_ok=True)
+    config.full_fig_results_root.mkdir(parents=True, exist_ok=True)
+    config.publish_fig_results_root.mkdir(parents=True, exist_ok=True)
+    config.cnf_results_root.mkdir(parents=True, exist_ok=True)
+
+    print(f"Rmodk performance results will be saved in: {results_path}")
     run_experiment(
         config=config,
-        results_path=csv_results_path,
+        results_path=results_path,
         flush_every=args.flush_every,
         disable_python_logging=(args.disable_python_logging or not args.verbose),
     )

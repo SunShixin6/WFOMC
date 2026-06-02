@@ -18,6 +18,9 @@ Run reproduce.performance.main only.
 For odd-degree performance, use:
   bash reproduce/performance/odd_degree/run_odd_degree.sh [args...]
 
+For Figure 9 rmodk performance, use:
+  bash reproduce/performance/rmodk/run_rmodk.sh [args...]
+
 All remaining arguments are passed through to reproduce.performance.main.
 EOF
 }
@@ -27,6 +30,11 @@ if [[ $# -gt 0 ]]; then
     --odd-degree)
       echo "Error: --odd-degree is not supported by run_performance.sh." >&2
       echo "Use: bash reproduce/performance/odd_degree/run_odd_degree.sh" >&2
+      exit 1
+      ;;
+    --rmodk)
+      echo "Error: --rmodk is not supported by run_performance.sh." >&2
+      echo "Use: bash reproduce/performance/rmodk/run_rmodk.sh" >&2
       exit 1
       ;;
     --main)

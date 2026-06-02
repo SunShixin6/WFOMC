@@ -1138,10 +1138,13 @@ dependencies = [
     { name = "contexttimer" },
     { name = "lark" },
     { name = "loguru" },
+    { name = "logzero" },
+    { name = "matplotlib" },
     { name = "networkx" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "prettyprinttree" },
+    { name = "psutil" },
     { name = "pynauty" },
     { name = "python-flint" },
     { name = "python-sat" },
@@ -1153,9 +1156,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "ipython" },
-    { name = "logzero" },
-    { name = "matplotlib" },
-    { name = "psutil" },
     { name = "pytest" },
     { name = "tabulate" },
 ]
@@ -1166,10 +1166,13 @@ requires-dist = [
     { name = "contexttimer", specifier = ">=0.3.3" },
     { name = "lark", specifier = ">=1.2.2" },
     { name = "loguru", specifier = ">=0.7.0" },
+    { name = "logzero", specifier = ">=1.7.0" },
+    { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "networkx", specifier = ">=3.2.1" },
     { name = "numpy", specifier = ">=2.0.2" },
     { name = "pandas", specifier = ">=2.3.1" },
     { name = "prettyprinttree", specifier = "==2.0.1" },
+    { name = "psutil", specifier = ">=7.1.2" },
     { name = "pynauty", specifier = "==2.8.6" },
     { name = "python-flint", specifier = ">=0.8.0" },
     { name = "python-sat", specifier = ">=1.8.dev17" },
@@ -1181,9 +1184,6 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "ipython", specifier = ">=9.6.0" },
-    { name = "logzero", specifier = ">=1.7.0" },
-    { name = "matplotlib", specifier = ">=3.10.8" },
-    { name = "psutil", specifier = ">=7.1.2" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "tabulate", specifier = ">=0.9.0" },
 ]

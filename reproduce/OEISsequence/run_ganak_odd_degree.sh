@@ -22,8 +22,12 @@ Examples:
   ./run_ganak_odd_degree.sh --ganak-path /path/to/ganak --approxmc-path /path/to/approxmc
 
 Options:
+  --verbose
   --disable-python-logging
   --enable-python-logging
+  --verbose enables Python logging output.
+  --disable-python-logging keeps Python logging disabled (default).
+  --enable-python-logging is an alias for --verbose.
   -h, --help
 
 Optional environment variables:
@@ -33,7 +37,10 @@ Optional environment variables:
 EOF
 }
 
-PYTHON_LOGGING_DISABLED="${REPRO_DISABLE_PYTHON_LOGGING:-0}"
+PYTHON_LOGGING_DISABLED="1"
+if [[ -n "${REPRO_DISABLE_PYTHON_LOGGING:-}" ]]; then
+  PYTHON_LOGGING_DISABLED="${REPRO_DISABLE_PYTHON_LOGGING}"
+fi
 FORWARDED_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -46,7 +53,7 @@ while [[ $# -gt 0 ]]; do
       PYTHON_LOGGING_DISABLED="1"
       shift
       ;;
-    --enable-python-logging)
+    --verbose|--enable-python-logging)
       PYTHON_LOGGING_DISABLED="0"
       shift
       ;;

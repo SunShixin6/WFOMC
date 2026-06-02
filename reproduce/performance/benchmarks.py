@@ -107,17 +107,6 @@ def default_groups() -> list[dict[str, Any]]:
                 "BA": "BA.wfomcs",
             },
         },
-        {
-            "name": "modk-regular-graphs",
-            # Even domains avoid trivial UNSAT for odd-degree parity families.
-            "domain_size": list(range(2, 40, 2)),
-            "algorithms": ["recursive", "fast", "incremental3"],
-            "models": {
-                "0mod2-regular-graph": "0mod2-regular-graph.wfomcs",
-                "1mod2-regular-graph": "1mod2-regular-graph.wfomcs",
-                "2mod4-regular-graph": "2mod4-regular-graph-sc2.wfomcs",
-            },
-        },
     ]
 
 

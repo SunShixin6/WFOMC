@@ -2,30 +2,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 TIMEZONE = "Asia/Shanghai"
 MEMORY_POLL_INTERVAL = 0.05
 DEFAULT_FLUSH_EVERY = 1
+DEFAULT_TIMEOUT_SECONDS = 10000
 DEFAULT_EPSILON = 0.05
 DEFAULT_DELTA = 0.1
-DEFAULT_TIMEOUT_SECONDS = 10000
-# DEFAULT_TIMEOUT_SECONDS = 100
-
-# Fixed paper-style odd-degree setup.
-FIXED_DOMAIN_SIZES = list(range(5, 20))
-FIXED_M_VALUES = [2, 4, 6]
-FIXED_ALGORITHMS = ["incremental3", "ganak", "approxmc"]
-FIXED_K_MULTIPLIER = 2
-FIXED_GROUP_NAME = "odd-degree-n"
-FIXED_MODEL_NAME = "m-odd-degree-graph-sc2"
-FIXED_MODEL_FILENAME = "m-odd-degree-graph-sc2.wfomcs"
 
 CSV_FIELDNAMES = [
     "timestamp",
     "formula",
     "domain_size",
-    "k_value",
-    "m_value",
     "algorithm",
     "result",
     "time_sec",
@@ -38,7 +27,7 @@ CSV_FIELDNAMES = [
 
 @dataclass(frozen=True)
 class RuntimeConfig:
-    """Runtime configuration for fixed odd-degree benchmark experiments."""
+    """Runtime configuration for Figure 9 rmodk performance experiments."""
 
     dir_path: Path
     repo_root: Path
@@ -50,13 +39,23 @@ class RuntimeConfig:
     timeout_seconds: int
     epsilon: float
     delta: float
-    group_name: str
-    model_name: str
-    model_filename: str
-    domain_sizes: list[int]
-    m_values: list[int]
-    algorithms: list[str]
-    k_multiplier: int
+    groups: list[dict[str, Any]]
+
+
+def default_groups() -> list[dict[str, Any]]:
+    """Figure 9 modulo-counting regular graph benchmarks."""
+    return [
+        {
+            "name": "rmodk-regular-graphs",
+            "domain_sizes": list(range(2, 20, 1)),
+            "algorithms": ["incremental3", "ganak", "approxmc"],
+            "models": {
+                "0mod2-regular-graph": "0mod2-regular-graph.wfomcs",
+                "1mod2-regular-graph": "1mod2-regular-graph.wfomcs",
+                "2mod4-regular-graph": "2mod4-regular-graph-sc2.wfomcs",
+            },
+        },
+    ]
 
 
 def build_runtime_config(
@@ -65,16 +64,16 @@ def build_runtime_config(
     epsilon: float = DEFAULT_EPSILON,
     delta: float = DEFAULT_DELTA,
 ) -> RuntimeConfig:
-    """Build fixed odd-degree runtime config using repository-relative paths."""
+    """Build runtime config using repository-relative paths."""
     dir_path = Path(__file__).resolve().parent
     repo_root = dir_path.parents[2]
 
     resolved_models_path = models_path or (repo_root / "models")
     full_results_root = repo_root / "reproduce" / "performance" / "performance_results"
-    csv_results_root = full_results_root / "raw_data" / "odd_degree"
+    csv_results_root = full_results_root / "raw_data" / "rmodk"
     full_fig_results_root = full_results_root / "Section6"
     publish_fig_results_root = repo_root / "reproduce" / "results" / "Section6"
-    cnf_results_root = full_results_root / "raw_data" / "cnf" / "odd_degree"
+    cnf_results_root = full_results_root / "raw_data" / "cnf" / "rmodk"
 
     return RuntimeConfig(
         dir_path=dir_path,
@@ -87,11 +86,5 @@ def build_runtime_config(
         timeout_seconds=timeout_seconds,
         epsilon=epsilon,
         delta=delta,
-        group_name=FIXED_GROUP_NAME,
-        model_name=FIXED_MODEL_NAME,
-        model_filename=FIXED_MODEL_FILENAME,
-        domain_sizes=FIXED_DOMAIN_SIZES,
-        m_values=FIXED_M_VALUES,
-        algorithms=FIXED_ALGORITHMS,
-        k_multiplier=FIXED_K_MULTIPLIER,
+        groups=default_groups(),
     )

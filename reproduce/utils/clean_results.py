@@ -7,7 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-FIGURE_5_TO_9 = "Figure_5_to_9"
+FIGURE_5_TO_8 = "Figure_5_to_8"
+FIGURE_9 = "Figure_9"
 FIGURE_10 = "Figure_10"
 FIGURE_11_TO_12 = "Figure_11_to_12"
 FIGURE_13 = "Figure_13"
@@ -15,7 +16,8 @@ FIGURE_14_TO_16 = "Figure_14_to_16"
 TABLE_2 = "Table_2"
 
 CANONICAL_TARGETS = [
-    FIGURE_5_TO_9,
+    FIGURE_5_TO_8,
+    FIGURE_9,
     FIGURE_10,
     FIGURE_11_TO_12,
     FIGURE_13,
@@ -37,27 +39,52 @@ class CleanupSpec:
 
 
 TARGET_CLEANUP_MAP: dict[str, CleanupSpec] = {
-    FIGURE_5_TO_9: CleanupSpec(
-        summary="performance main artifacts for Section6 Figure_5 to Figure_9",
+    FIGURE_5_TO_8: CleanupSpec(
+        summary="performance main artifacts for Section6 Figure_5 to Figure_8",
         globs=(
             GlobSpec("reproduce/performance/performance_results/raw_data/results_*"),
             GlobSpec(
                 "reproduce/performance/performance_results/Section6/*_time_comparison.*",
                 exclude=(
                     "reproduce/performance/performance_results/Section6/m-odd-degree-graph-sc2_m*_time_comparison.*",
+                    "reproduce/performance/performance_results/Section6/0mod2-regular-graph_time_comparison.*",
+                    "reproduce/performance/performance_results/Section6/1mod2-regular-graph_time_comparison.*",
+                    "reproduce/performance/performance_results/Section6/2mod4-regular-graph_time_comparison.*",
                 ),
             ),
             GlobSpec("reproduce/results/Section6/Figure_5_*.pdf"),
             GlobSpec("reproduce/results/Section6/Figure_6_*.pdf"),
             GlobSpec("reproduce/results/Section6/Figure_7_*.pdf"),
             GlobSpec("reproduce/results/Section6/Figure_8_*.pdf"),
-            GlobSpec("reproduce/results/Section6/Figure_9_*.pdf"),
             GlobSpec(
                 "reproduce/results/Section6/*_time_comparison.*",
                 exclude=(
                     "reproduce/results/Section6/m-odd-degree-graph-sc2_m*_time_comparison.*",
+                    "reproduce/results/Section6/0mod2-regular-graph_time_comparison.*",
+                    "reproduce/results/Section6/1mod2-regular-graph_time_comparison.*",
+                    "reproduce/results/Section6/2mod4-regular-graph_time_comparison.*",
                 ),
             ),
+        ),
+    ),
+    FIGURE_9: CleanupSpec(
+        summary="performance rmodk artifacts for Section6 Figure_9",
+        globs=(
+            GlobSpec("reproduce/performance/performance_results/raw_data/rmodk/results_*"),
+            GlobSpec("reproduce/performance/performance_results/raw_data/cnf/rmodk"),
+            GlobSpec(
+                "reproduce/performance/performance_results/Section6/0mod2-regular-graph_time_comparison.*",
+            ),
+            GlobSpec(
+                "reproduce/performance/performance_results/Section6/1mod2-regular-graph_time_comparison.*",
+            ),
+            GlobSpec(
+                "reproduce/performance/performance_results/Section6/2mod4-regular-graph_time_comparison.*",
+            ),
+            GlobSpec("reproduce/results/Section6/Figure_9_*.pdf"),
+            GlobSpec("reproduce/results/Section6/0mod2-regular-graph_time_comparison.*"),
+            GlobSpec("reproduce/results/Section6/1mod2-regular-graph_time_comparison.*"),
+            GlobSpec("reproduce/results/Section6/2mod4-regular-graph_time_comparison.*"),
         ),
     ),
     FIGURE_10: CleanupSpec(
@@ -120,10 +147,15 @@ TARGET_CLEANUP_MAP: dict[str, CleanupSpec] = {
 }
 
 TARGET_LOG_GLOBS: dict[str, tuple[GlobSpec, ...]] = {
-    FIGURE_5_TO_9: (
+    FIGURE_5_TO_8: (
         GlobSpec("reproduce/logs/run_*/03_reproduce_performance_main.log"),
         GlobSpec("reproduce/logs/single_*/performance_main.log"),
         GlobSpec("reproduce/logs/single_*/performance_main.meta.json"),
+    ),
+    FIGURE_9: (
+        GlobSpec("reproduce/logs/run_*/05_reproduce_performance_rmodk_main.log"),
+        GlobSpec("reproduce/logs/single_*/performance_rmodk.log"),
+        GlobSpec("reproduce/logs/single_*/performance_rmodk.meta.json"),
     ),
     FIGURE_10: (
         GlobSpec("reproduce/logs/run_*/04_reproduce_performance_odd_degree_main.log"),
@@ -146,6 +178,7 @@ TARGET_LOG_GLOBS: dict[str, tuple[GlobSpec, ...]] = {
         GlobSpec("reproduce/logs/single_*/performance_main.meta.json"),
     ),
     TABLE_2: (
+        GlobSpec("reproduce/logs/run_*/06_oeissequence_ganak_odd_degree.log"),
         GlobSpec("reproduce/logs/run_*/05_oeissequence_ganak_odd_degree.log"),
         GlobSpec("reproduce/logs/single_*/oeissequence_table2.log"),
         GlobSpec("reproduce/logs/single_*/oeissequence_table2.meta.json"),
@@ -159,9 +192,12 @@ ALL_TARGETS_EXTRA_LOG_GLOBS: tuple[GlobSpec, ...] = (
 
 ALIAS_TO_TARGETS: dict[str, tuple[str, ...]] = {
     # Preferred Figure/Table keys.
-    "figure_5_to_9": (FIGURE_5_TO_9,),
-    "figure-5-to-9": (FIGURE_5_TO_9,),
-    "figure5to9": (FIGURE_5_TO_9,),
+    "figure_5_to_8": (FIGURE_5_TO_8,),
+    "figure-5-to-8": (FIGURE_5_TO_8,),
+    "figure5to8": (FIGURE_5_TO_8,),
+    "figure_9": (FIGURE_9,),
+    "figure-9": (FIGURE_9,),
+    "figure9": (FIGURE_9,),
     "figure_10": (FIGURE_10,),
     "figure-10": (FIGURE_10,),
     "figure10": (FIGURE_10,),
@@ -180,6 +216,9 @@ ALIAS_TO_TARGETS: dict[str, tuple[str, ...]] = {
     "oeissequence": (TABLE_2,),
     "oesisequence": (TABLE_2,),
     # Backward-compatible aliases (deprecated in docs).
+    "figure_5_to_9": (FIGURE_5_TO_8, FIGURE_9),
+    "figure-5-to-9": (FIGURE_5_TO_8, FIGURE_9),
+    "figure5to9": (FIGURE_5_TO_8, FIGURE_9),
     "correctness": (FIGURE_11_TO_12,),
     "correctness.main": (FIGURE_11_TO_12,),
     "reproduce.correctness.main": (FIGURE_11_TO_12,),
@@ -188,9 +227,14 @@ ALIAS_TO_TARGETS: dict[str, tuple[str, ...]] = {
     "correctness.odd_degree": (FIGURE_13,),
     "correctness.odd_degree.main": (FIGURE_13,),
     "reproduce.correctness.odd_degree.main": (FIGURE_13,),
-    "performance": (FIGURE_5_TO_9, FIGURE_14_TO_16),
-    "performance.main": (FIGURE_5_TO_9, FIGURE_14_TO_16),
-    "reproduce.performance.main": (FIGURE_5_TO_9, FIGURE_14_TO_16),
+    "performance": (FIGURE_5_TO_8, FIGURE_9, FIGURE_14_TO_16),
+    "performance.main": (FIGURE_5_TO_8, FIGURE_14_TO_16),
+    "reproduce.performance.main": (FIGURE_5_TO_8, FIGURE_14_TO_16),
+    "performance-rmodk": (FIGURE_9,),
+    "performance_rmodk": (FIGURE_9,),
+    "performance.rmodk": (FIGURE_9,),
+    "performance.rmodk.main": (FIGURE_9,),
+    "reproduce.performance.rmodk.main": (FIGURE_9,),
     "performance-odd-degree": (FIGURE_10,),
     "performance_odd_degree": (FIGURE_10,),
     "performance.odd_degree": (FIGURE_10,),
@@ -226,7 +270,8 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="FIGURE_OR_TABLE",
         help=(
             "Figure/Table key to delete. Repeatable. "
-            "Examples: Figure_5_to_9, Figure_10, Figure_11_to_12, Figure_13, "
+            "Examples: Figure_5_to_8, Figure_9, Figure_10, "
+            "Figure_11_to_12, Figure_13, "
             "Figure_14_to_16, Table_2"
         ),
     )
@@ -267,7 +312,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _print_supported_targets() -> None:
     print("Supported Figure/Table keys:")
-    print(f"  - {FIGURE_5_TO_9}: performance main (Section6)")
+    print(f"  - {FIGURE_5_TO_8}: performance main (Section6)")
+    print(f"  - {FIGURE_9}: performance rmodk")
     print(f"  - {FIGURE_10}: performance odd-degree")
     print(f"  - {FIGURE_11_TO_12}: correctness main")
     print(f"  - {FIGURE_13}: correctness odd-degree")
@@ -275,7 +321,8 @@ def _print_supported_targets() -> None:
     print(f"  - {TABLE_2}: OEISsequence output")
     print()
     print("Module to artifact mapping:")
-    print("  - reproduce.performance.main -> Figure_5_to_9 + Figure_14_to_16")
+    print("  - reproduce.performance.main -> Figure_5_to_8 + Figure_14_to_16")
+    print("  - reproduce.performance.rmodk.main -> Figure_9")
     print("  - reproduce.performance.odd_degree.main -> Figure_10")
     print("  - reproduce.correctness.main -> Figure_11_to_12")
     print("  - reproduce.correctness.odd_degree.main -> Figure_13")

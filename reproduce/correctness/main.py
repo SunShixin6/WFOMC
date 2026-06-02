@@ -30,7 +30,8 @@ from reproduce.utils.smoke_profile import apply_smoke_correctness_config, is_smo
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    disable_logging_default = os.getenv("REPRO_DISABLE_PYTHON_LOGGING", "0") == "1"
+    disable_logging_default = os.getenv("REPRO_DISABLE_PYTHON_LOGGING", "1") != "0"
+    verbose_default = not disable_logging_default
 
     parser = argparse.ArgumentParser(
         description="Run correctness experiments (incremental3/ganak/approxmc) under reproduce style."
@@ -40,11 +41,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--epsilon", type=float, default=DEFAULT_EPSILON)
     parser.add_argument("--delta", type=float, default=DEFAULT_DELTA)
     parser.add_argument("--flush-every", type=int, default=DEFAULT_FLUSH_EVERY)
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--verbose",
+        action="store_true",
+        default=verbose_default,
+        help="Enable Python logging output emitted by benchmark workers.",
+    )
+    group.add_argument(
         "--disable-python-logging",
         action="store_true",
         default=disable_logging_default,
-        help="Disable Python logging output emitted by benchmark workers.",
+        help="Disable Python logging output emitted by benchmark workers (default).",
     )
     parser.add_argument(
         "--smoke",
@@ -84,7 +92,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         config=config,
         results_path=results_path,
         flush_every=args.flush_every,
-        disable_python_logging=args.disable_python_logging,
+        disable_python_logging=(args.disable_python_logging or not args.verbose),
     )
 
 

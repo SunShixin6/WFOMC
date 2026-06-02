@@ -7,11 +7,11 @@ For solver usage and algorithmic background, see the top-level
 [README](../README.md).
 
 ## Prerequisites
-
-- Python `>=3.11`
+- Python 3.11 is recommended if using `uv`
 - Dependencies installed from repository root (recommended: `uv sync`)
 - Project virtual environment at `.venv`
 - The run scripts use `.venv` when available and automatically fall back to `uv run python` otherwise.
+- Full reproduction requires 100 GB of RAM, primarily due to the memory-intensive Recursive baseline on large instances; insufficient memory may cause early termination and error results.
 
 ## Quick Start
 
@@ -22,7 +22,7 @@ Run from repository root:
 bash reproduce/run_all.sh --dry-run
 
 # 2) Lightweight end-to-end sanity check
-bash reproduce/run_all.sh --smoke --disable-python-logging
+bash reproduce/run_all.sh --smoke 
 
 # 3) Full reproduction
 bash reproduce/run_all.sh
@@ -36,7 +36,8 @@ bash reproduce/run_all.sh
 2. `reproduce.correctness.odd_degree.main`
 3. `reproduce.performance.main`
 4. `reproduce.performance.odd_degree.main`
-5. `reproduce/OEISsequence/run_ganak_odd_degree.sh`
+5. `reproduce.performance.rmodk.main`
+6. `reproduce/OEISsequence/run_ganak_odd_degree.sh`
 
 ## External Model Counters
 
@@ -44,6 +45,10 @@ Some stages invoke external model counters:
 
 - `GANAK_BIN`: Ganak executable (exact counting)
 - `APPROXMC_BIN`: ApproxMC executable (approximate counting)
+
+The source repositories of these counters are available at:
+- Ganak: https://github.com/meelgroup/ganak
+- ApproxMC: https://github.com/meelgroup/approxmc
 
 For a full end-to-end run (`bash reproduce/run_all.sh`), both counters must be
 available (via environment variables or `PATH`).
@@ -60,12 +65,6 @@ export GANAK_BIN=/absolute/path/to/ganak
 export APPROXMC_BIN=/absolute/path/to/approxmc
 ```
 
-Example (PowerShell):
-
-```powershell
-$env:GANAK_BIN = "C:\\path\\to\\ganak.exe"
-$env:APPROXMC_BIN = "C:\\path\\to\\approxmc.exe"
-```
 
 ## Model File Resolution
 
@@ -76,28 +75,7 @@ Model files are resolved in this order:
 3. `reproduce/models/<model_filename>`
 4. Any nested subdirectory under `reproduce/models/` (recursive filename match)
 
-## Logging and Quiet Mode
 
-Each run creates timestamped logs under:
-
-- `reproduce/logs/run_<timestamp>/` (for `run_all.sh`)
-- `reproduce/logs/single_<timestamp>/` (for single-stage scripts)
-
-Useful flags:
-
-- `--disable-python-logging`
-- `--enable-python-logging`
-
-Equivalent environment variable:
-
-- `REPRO_DISABLE_PYTHON_LOGGING=1` disables Python logging.
-- `REPRO_DISABLE_PYTHON_LOGGING=0` keeps the default behavior.
-
-To keep terminal output minimal while preserving full logs:
-
-```bash
-bash reproduce/run_all.sh --smoke --disable-python-logging > /tmp/repro_smoke.out 2>&1
-```
 
 ## Smoke Mode
 
@@ -118,11 +96,13 @@ After a successful full run, the following outputs should exist:
 - `reproduce/correctness/correctness_results/raw_data/odd_degree/results_<timestamp>/`
 - `reproduce/performance/performance_results/raw_data/results_<timestamp>/`
 - `reproduce/performance/performance_results/raw_data/odd_degree/results_<timestamp>/`
+- `reproduce/performance/performance_results/raw_data/rmodk/results_<timestamp>/`
 - `reproduce/results/Appendix.D/Table_2.csv`
 
 ## Mapping from Paper Figures and Tables to Scripts
 
-- `Figure_5_to_9` -> `reproduce.performance.main` (Section 6 runtime plots)
+- `Figure_5_to_8` -> `reproduce.performance.main` (Section 6 runtime plots)
+- `Figure_9` -> `reproduce.performance.rmodk.main`
 - `Figure_10` -> `reproduce.performance.odd_degree.main`
 - `Figure_11_to_12` -> `reproduce.correctness.main`
 - `Figure_13` -> `reproduce.correctness.odd_degree.main`
@@ -165,23 +145,7 @@ find reproduce/results/AppendixB.2 -name '*.pdf' | head -n 3
 
 Run from repository root.
 
-### Correctness
-
-```bash
-bash reproduce/correctness/run_correctness.sh
-```
-
-Defaults: timeout `10000`, epsilon `0.05`, delta `0.1`.
-
-### Correctness (Odd-Degree, Figure 13)
-
-```bash
-bash reproduce/correctness/odd_degree/run_odd_degree.sh
-```
-
-Defaults: timeout `10000`, epsilon `0.05`, delta `0.1`.
-
-### Performance
+### Figure 5 to Figure 8 
 
 ```bash
 bash reproduce/performance/run_performance.sh
@@ -189,24 +153,62 @@ bash reproduce/performance/run_performance.sh
 
 Default timeout: `10000`.
 
-### Performance (Odd-Degree, Figure 10)
+### Figure 9
+
+```bash
+bash reproduce/performance/rmodk/run_rmodk.sh
+```
+
+### Figure 10
 
 ```bash
 bash reproduce/performance/odd_degree/run_odd_degree.sh
 ```
 
-Defaults: timeout `100`, epsilon `0.05`, delta `0.1`, with fixed `m ∈ {2,4,6}`.
+Defaults: timeout `10000`, epsilon `0.05`, delta `0.1`, with fixed `m ∈ {2,4,6}`.
 
-### OEIS / Table 2 Generation
+### Figure 11 to Figure 12
+
+```bash
+bash reproduce/correctness/run_correctness.sh
+```
+
+Defaults: timeout `10000`, epsilon `0.05`, delta `0.1`.
+
+### Figure 13
+
+```bash
+bash reproduce/correctness/odd_degree/run_odd_degree.sh
+```
+
+Defaults: timeout `10000`, epsilon `0.05`, delta `0.1`.
+
+
+
+### Table 2
 
 ```bash
 bash reproduce/OEISsequence/run_ganak_odd_degree.sh
 ```
 
-Equivalent direct call:
+
+## Logging
+
+Each run creates timestamped logs under:
+
+- `reproduce/logs/run_<timestamp>/` (for `run_all.sh`)
+- `reproduce/logs/single_<timestamp>/` (for single-stage scripts)
+
+Useful flags:
+
+- `--verbose` enables Python logging.
+
+
+
+To keep terminal output minimal while preserving full logs:
 
 ```bash
-PYTHONPATH=src:. python reproduce/OEISsequence/ganak_odd_degree.py
+bash reproduce/run_all.sh --smoke --verbose > /tmp/repro_smoke.out 2>&1
 ```
 
 ## Cleanup Generated Outputs
